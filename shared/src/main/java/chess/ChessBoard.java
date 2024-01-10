@@ -7,9 +7,10 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessBoard {
+    private ChessPiece[][] board;
 
     public ChessBoard() {
-        
+       resetBoard(); 
     }
 
     /**
@@ -19,7 +20,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        throw new RuntimeException("Not implemented");
+        board[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
 
     /**
@@ -30,14 +31,60 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        throw new RuntimeException("Not implemented");
+        return board[position.getRow() - 1][position.getColumn() - 1];
     }
 
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
+     *
+     * |r|n|b|q|k|b|n|r|
+     * |p|p|p|p|p|p|p|p|
+     * | | | | | | | | |
+     * | | | | | | | | |
+     * | | | | | | | | |
+     * | | | | | | | | |
+     * |P|P|P|P|P|P|P|P|
+     * |R|N|B|Q|K|B|N|R|
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        board = new ChessPiece[8][8];
+        ChessPiece[] black = {
+            new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK),
+            new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT),
+            new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP),
+            new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN),
+            new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING),
+            new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP),
+            new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT),
+            new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK),
+        };
+        ChessPiece[] white = {
+            new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK),
+            new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT),
+            new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP),
+            new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN),
+            new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING),
+            new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP),
+            new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT),
+            new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK),
+        };
+        board[0] = white;
+        board[1] = pawnRow(ChessGame.TeamColor.WHITE);
+        board[7] = black;
+        board[6] = pawnRow(ChessGame.TeamColor.BLACK);
+    }
+
+    /**
+     * Fill an array with eight pawns of the given color
+     * 
+     * @param color The color of the pawns
+     */
+    private ChessPiece[] pawnRow(ChessGame.TeamColor color) {
+        ChessPiece[] row = new ChessPiece[8];
+        for (int i = 0; i < 8; i++) {
+            row[i] = new ChessPiece(color, ChessPiece.PieceType.PAWN);
+        }
+        return row;
     }
 }
