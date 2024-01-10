@@ -35,6 +35,22 @@ public class ChessBoard {
     }
 
     /**
+     * Checks if a position is within the board
+     * Used to ensure that we don't try to move a piece off the board
+     *
+     * @param position The position to check
+     * @return true if the position is within the board, false otherwise
+     */
+    public static boolean isPositionWithinBoard(ChessPosition position) {
+        return (
+            position.getRow() >= 1 && 
+            position.getRow() <= 8 && 
+            position.getColumn() >= 1 && 
+            position.getColumn() <= 8
+        );
+    }
+
+    /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      *
