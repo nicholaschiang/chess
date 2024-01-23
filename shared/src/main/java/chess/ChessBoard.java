@@ -53,6 +53,7 @@ public class ChessBoard {
                 } else {
                     builder.append(piece);
                 }
+                builder.append("|");
             }
             builder.append("\n");
         }
@@ -60,7 +61,7 @@ public class ChessBoard {
     }
 
     public ChessBoard() {
-       resetBoard(); 
+        board = new ChessPiece[8][8];
     }
 
     /**
@@ -92,12 +93,14 @@ public class ChessBoard {
      * @return true if the position is within the board, false otherwise
      */
     public static boolean isPositionWithinBoard(ChessPosition position) {
-        return (
+        boolean positionWithinBoard = (
             position.getRow() >= 1 && 
             position.getRow() <= 8 && 
             position.getColumn() >= 1 && 
             position.getColumn() <= 8
         );
+        System.out.println(String.format("Position %s is within board: %s", position, positionWithinBoard));
+        return positionWithinBoard;
     }
 
     /**
