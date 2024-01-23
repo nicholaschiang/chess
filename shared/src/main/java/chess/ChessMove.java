@@ -38,7 +38,11 @@ public class ChessMove {
 
     @Override
     public String toString() {
-        return String.format("%s -> %s", startPosition, endPosition);
+        var move = String.format("%s -> %s", startPosition, endPosition);
+        if (promotionPiece != null) {
+            move += String.format(" (%s)", promotionPiece);
+        }
+        return move;
     }
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition) {

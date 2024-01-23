@@ -225,17 +225,28 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
+        System.out.println(String.format("\nGenerating pawn moves for %s at: %s", this, myPosition));
+        System.out.println(String.format("Board:\n%s", board));
+
         // Pawns can only move forward one row (down for black, up for white)
-        ChessPosition[] directions = { new ChessPosition(pieceColor == ChessGame.TeamColor.WHITE ? 1 : -1, 0) };
-        var moves = generateMoves(directions, board, myPosition);
+        var moves = new ArrayList<ChessMove>();
+        var oneForward = new ChessPosition(
+            myPosition.getRow() + (pieceColor == ChessGame.TeamColor.WHITE ? 1 : -1), 
+            myPosition.getColumn()
+        );
+        var oneForwardPiece = board.getPiece(oneForward);
+        if (ChessBoard.isPositionWithinBoard(oneForward) && oneForwardPiece == null)
+            moves.add(new ChessMove(myPosition, oneForward));
 
         // If it is the pawn's first move, it can move two squares forward
-        if (myPosition.getRow() == (pieceColor == ChessGame.TeamColor.WHITE ? 1 : 6)) {
+        if (myPosition.getRow() == (pieceColor == ChessGame.TeamColor.WHITE ? 2 : 7)) {
             var twoForward = new ChessPosition(
                 myPosition.getRow() + (pieceColor == ChessGame.TeamColor.WHITE ? 2 : -2),
                 myPosition.getColumn()
             );
-            if (board.getPiece(twoForward) == null)
+            var twoForwardPiece = board.getPiece(twoForward);
+            System.out.println(String.format("Pawn is at starting position, checking if there is a piece at %s: %s and %s: %s", oneForward, oneForwardPiece, twoForward, twoForwardPiece));
+            if (oneForwardPiece == null && twoForwardPiece == null)
                 moves.add(new ChessMove(myPosition, twoForward));
         }
 
@@ -259,8 +270,20 @@ public class ChessPiece {
                 moves.add(new ChessMove(myPosition, rightDiagonal));
         }
 
-        // Perhaps I have to add moves for every possible promotion if one of 
-        // the moves included in `moves` is a promotion?
+        // Add moves for every possible promotion if one of the moves included in `moves` is a promotion
+        var promotionMoves = new ArrayList<ChessMove>();
+        var duplicateMoves = new ArrayList<ChessMove>();
+        for (var move : moves) {
+            if (move.getEndPosition().getRow() == (pieceColor == ChessGame.TeamColor.WHITE ? 8 : 1)) {
+                promotionMoves.add(new ChessMove(move.getStartPosition(), move.getEndPosition(), ChessPiece.PieceType.QUEEN));
+                promotionMoves.add(new ChessMove(move.getStartPosition(), move.getEndPosition(), ChessPiece.PieceType.ROOK));
+                promotionMoves.add(new ChessMove(move.getStartPosition(), move.getEndPosition(), ChessPiece.PieceType.BISHOP));
+                promotionMoves.add(new ChessMove(move.getStartPosition(), move.getEndPosition(), ChessPiece.PieceType.KNIGHT));
+                duplicateMoves.add(move);
+            }
+        }
+        moves.removeAll(duplicateMoves);
+        moves.addAll(promotionMoves);
 
         return moves;
     }
@@ -282,6 +305,7 @@ public class ChessPiece {
     private Collection<ChessMove> generateMoves(ChessPosition[] directions, ChessBoard board, ChessPosition myPosition) {
         System.out.println(String.format("\nGenerating moves for %s at: %s", this, myPosition));
         System.out.println(String.format("Board:\n%s", board));
+        
         var moves = new ArrayList<ChessMove>();
         for (var direction : directions) {
             var nextPosition = new ChessPosition(
