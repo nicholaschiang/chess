@@ -28,6 +28,11 @@ public class ChessPosition {
         return hash;
     }
 
+    @Override
+    public String toString() {
+        return String.format("(%d, %d)", row, col);
+    }
+
     public ChessPosition(int row, int col) {
         this.row = row;
         this.col = col;

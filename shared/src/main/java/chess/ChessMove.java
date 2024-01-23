@@ -36,6 +36,11 @@ public class ChessMove {
         return hash;
     }
 
+    @Override
+    public String toString() {
+        return String.format("%s -> %s", startPosition, endPosition);
+    }
+
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition) {
         this.startPosition = startPosition;
         this.endPosition = endPosition;

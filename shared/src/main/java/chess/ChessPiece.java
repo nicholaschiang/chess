@@ -31,6 +31,11 @@ public class ChessPiece {
         return hash;
     }
 
+    @Override
+    public String toString() {
+        return pieceColor.toString() + " " + type.toString();
+    }
+
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
@@ -52,7 +57,11 @@ public class ChessPiece {
      * @return Whether a piece can move many squares or only one.
      */
     private boolean isPieceContinuous() {
-        return type == ChessPiece.PieceType.QUEEN || type == ChessPiece.PieceType.BISHOP || type == ChessPiece.PieceType.ROOK;
+        return (
+            type == ChessPiece.PieceType.QUEEN || 
+            type == ChessPiece.PieceType.BISHOP || 
+            type == ChessPiece.PieceType.ROOK
+        );
     }
 
     /**
@@ -269,12 +278,15 @@ public class ChessPiece {
                 if (piece == null) {
                     // If there is no piece at the next position, we can move there
                     moves.add(new ChessMove(myPosition, nextPosition));
-                    // Keep moving in the same direction until we hit a piece
                     if (isPieceContinuous()) {
+                        // Keep moving in the same direction until we hit a piece
                         nextPosition = new ChessPosition(
                             nextPosition.getRow() + direction.getRow(),
                             nextPosition.getColumn() + direction.getColumn()
                         );
+                    } else {
+                        // Otherwise, if a piece is not continuous, stop moving.
+                        break;
                     }
                 } else if (piece.getTeamColor() != getTeamColor()) {
                     // If there is an enemy piece at the next position, we can move there

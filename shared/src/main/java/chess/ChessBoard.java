@@ -43,6 +43,22 @@ public class ChessBoard {
         return hash;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (ChessPiece[] row : board) {
+            for (ChessPiece piece : row) {
+                if (piece == null) {
+                    builder.append(" ");
+                } else {
+                    builder.append(piece);
+                }
+            }
+            builder.append("\n");
+        }
+        return builder.toString();
+    }
+
     public ChessBoard() {
        resetBoard(); 
     }
