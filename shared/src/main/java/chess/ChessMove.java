@@ -11,6 +11,31 @@ public class ChessMove {
     private ChessPosition endPosition;
     private ChessPiece.PieceType promotionPiece;
 
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof ChessMove) {
+            ChessMove otherMove = (ChessMove) other;
+            return (
+                startPosition.equals(otherMove.startPosition) &&
+                endPosition.equals(otherMove.endPosition) &&
+                promotionPiece == otherMove.promotionPiece
+            );
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 31 * hash + startPosition.hashCode();
+        hash = 31 * hash + endPosition.hashCode();
+        if (promotionPiece != null) {
+            hash = 31 * hash + promotionPiece.hashCode();
+        }
+        return hash;
+    }
+
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition) {
         this.startPosition = startPosition;
         this.endPosition = endPosition;

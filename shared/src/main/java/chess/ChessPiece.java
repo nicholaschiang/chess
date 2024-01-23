@@ -13,6 +13,24 @@ public class ChessPiece {
     private ChessGame.TeamColor pieceColor;
     private ChessPiece.PieceType type;
 
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof ChessPiece) {
+            ChessPiece otherPiece = (ChessPiece) other;
+            return pieceColor == otherPiece.pieceColor && type == otherPiece.type;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 31 * hash + pieceColor.hashCode();
+        hash = 31 * hash + type.hashCode();
+        return hash;
+    }
+
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
@@ -252,11 +270,12 @@ public class ChessPiece {
                     // If there is no piece at the next position, we can move there
                     moves.add(new ChessMove(myPosition, nextPosition));
                     // Keep moving in the same direction until we hit a piece
-                    if (isPieceContinuous())
+                    if (isPieceContinuous()) {
                         nextPosition = new ChessPosition(
                             nextPosition.getRow() + direction.getRow(),
                             nextPosition.getColumn() + direction.getColumn()
                         );
+                    }
                 } else if (piece.getTeamColor() != getTeamColor()) {
                     // If there is an enemy piece at the next position, we can move there
                     moves.add(new ChessMove(myPosition, nextPosition));

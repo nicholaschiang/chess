@@ -9,6 +9,40 @@ package chess;
 public class ChessBoard {
     private ChessPiece[][] board;
 
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof ChessBoard) {
+            ChessBoard otherBoard = (ChessBoard) other;
+            for (int row = 0; row < 8; row++) {
+                for (int col = 0; col < 8; col++) {
+                    ChessPiece thisPiece = board[row][col];
+                    ChessPiece otherPiece = otherBoard.board[row][col];
+                    if (thisPiece == null && otherPiece == null) {
+                        continue;
+                    } else if (thisPiece == null || otherPiece == null) {
+                        return false;
+                    } else if (!thisPiece.equals(otherPiece)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        for (ChessPiece[] row : board) {
+            for (ChessPiece piece : row) {
+                hash = 31 * hash + piece.hashCode();
+            }
+        }
+        return hash;
+    }
+
     public ChessBoard() {
        resetBoard(); 
     }
