@@ -92,6 +92,15 @@ public class ChessPiece {
     }
 
     /**
+     * Set's which type of chess piece this piece is 
+     *
+     * @param type The type of chess piece this piece is
+     */
+    public void setPieceType(PieceType type) {
+        this.type = type;
+    }
+
+    /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
      * danger

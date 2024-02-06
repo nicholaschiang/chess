@@ -75,6 +75,21 @@ public class ChessBoard {
     }
 
     /**
+     * Moves a chess piece across the chessboard
+     *
+     * @param move the move to preform
+     */
+    public void movePiece(ChessMove move) {
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        var piece = board[start.getRow() - 1][start.getColumn() - 1];
+        var promotionPieceType = move.getPromotionPiece(); 
+        if (promotionPieceType != null) piece.setPieceType(promotionPieceType);
+        board[end.getRow() - 1][end.getColumn() - 1] = piece;
+        board[start.getRow() - 1][start.getColumn() - 1] = null;
+    }
+
+    /**
      * Gets a chess piece on the chessboard
      *
      * @param position The position to get the piece from
