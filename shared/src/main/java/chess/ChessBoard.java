@@ -64,6 +64,20 @@ public class ChessBoard {
   }
 
   /**
+   * Creates a shallow clone of the given chessboard
+   *
+   * @param board the board to clone
+   */
+  public ChessBoard(ChessBoard board) {
+    this.board = new ChessPiece[8][8];
+    for (int row = 0; row < 8; row++) {
+      for (int col = 0; col < 8; col++) {
+        this.board[row][col] = board.board[row][col];
+      }
+    }
+  }
+
+  /**
    * Adds a chess piece to the chessboard
    *
    * @param position where to add the piece to
@@ -96,6 +110,23 @@ public class ChessBoard {
    */
   public ChessPiece getPiece(ChessPosition position) {
     return board[position.getRow() - 1][position.getColumn() - 1];
+  }
+
+  /**
+   * Finds the position of a chess piece on the chessboard
+   *
+   * @param piece the piece to find
+   * @return The position of the piece, or null if the piece is not on the board
+   */
+  public ChessPosition findPiece(ChessPiece piece) {
+    for (int row = 0; row < 8; row++) {
+      for (int col = 0; col < 8; col++) {
+        if (board[row][col].equals(piece)) {
+          return new ChessPosition(row + 1, col + 1);
+        }
+      }
+    }
+    return null;
   }
 
   /**
