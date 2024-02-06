@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.ArrayList;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -57,7 +58,19 @@ public class ChessGame {
    * @return Set of valid moves for requested piece, or null if no piece at startPosition
    */
   public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-    return board.getPiece(startPosition).pieceMoves(board, startPosition);
+    // All the moves that the piece at startPosition can make.
+    var piece = board.getPiece(startPosition);
+    var allMoves = piece.pieceMoves(board, startPosition);
+
+    // All the moves that do not put the team's king in danger.
+    var validMoves = new ArrayList<ChessMove>();
+    for (var move : allMoves) {
+      var tempGame = new ChessGame(board, teamTurn);
+      tempGame.getBoard().movePiece(move);
+      if (!tempGame.isInCheck(piece.getTeamColor())) validMoves.add(move);
+    }
+
+    return validMoves;
   }
 
   /**
@@ -74,12 +87,6 @@ public class ChessGame {
     // A move is illegal if the chess piece cannot move there.
     if (!validMoves(move.getStartPosition()).contains(move))
       throw new InvalidMoveException("This piece cannot make this move.");
-
-    // A move is illegal if the move leaves the team's king in danger.
-    var tempGame = new ChessGame(board, teamTurn);
-    tempGame.getBoard().movePiece(move);
-    if (tempGame.isInCheck(teamTurn))
-      throw new InvalidMoveException("This move puts your king in check.");
 
     // Otherwise, the move is legal, and the piece is moved.
     board.movePiece(move);
@@ -103,6 +110,12 @@ public class ChessGame {
     ChessPiece king = new ChessPiece(teamColor, ChessPiece.PieceType.KING);
     ChessPosition kingPosition = board.findPiece(king);
 
+    // If there is no king, we cannot be in check.
+    if (kingPosition == null) {
+      System.out.println(String.format("No %s found in board:\n%s", king, board));
+      return false;
+    }
+
     // For every enemy piece on the board, check if it can move to the same
     // position as the king (i.e. capture the king).
     for (int row = 1; row <= 8; row++) {
@@ -110,8 +123,10 @@ public class ChessGame {
         ChessPosition position = new ChessPosition(row, col);
         ChessPiece piece = board.getPiece(position);
         if (piece != null && piece.getTeamColor() != teamColor) {
-          if (piece.pieceMoves(board, position).contains(new ChessMove(position, kingPosition))) {
-            return true;
+          for (ChessMove move : piece.pieceMoves(board, position)) {
+            if (move.getEndPosition().equals(kingPosition)) {
+              return true;
+            }
           }
         }
       }
@@ -140,10 +155,10 @@ public class ChessGame {
         ChessPosition position = new ChessPosition(row, col);
         ChessPiece piece = board.getPiece(position);
         if (piece != null && piece.getTeamColor() == teamColor) {
-          for (ChessMove move : validMoves(position)) {
-            ChessBoard tempBoard = new ChessBoard(board);
-            tempBoard.movePiece(move);
-            if (!isInCheck(teamColor)) {
+          for (ChessMove move : piece.pieceMoves(board, position)) {
+            ChessGame tempGame = new ChessGame(board, teamTurn);
+            tempGame.getBoard().movePiece(move);
+            if (!tempGame.isInCheck(teamColor)) {
               return false;
             }
           }

@@ -228,9 +228,6 @@ public class ChessPiece {
    * @return Collection of valid moves
    */
   private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
-    System.out.println(String.format("\nGenerating pawn moves for %s at: %s", this, myPosition));
-    System.out.println(String.format("Board:\n%s", board));
-
     // Pawns can only move forward one row (down for black, up for white)
     var moves = new ArrayList<ChessMove>();
     var oneForward =
@@ -248,10 +245,6 @@ public class ChessPiece {
               myPosition.getRow() + (pieceColor == ChessGame.TeamColor.WHITE ? 2 : -2),
               myPosition.getColumn());
       var twoForwardPiece = board.getPiece(twoForward);
-      System.out.println(
-          String.format(
-              "Pawn is at starting position, checking if there is a piece at %s: %s and %s: %s",
-              oneForward, oneForwardPiece, twoForward, twoForwardPiece));
       if (oneForwardPiece == null && twoForwardPiece == null)
         moves.add(new ChessMove(myPosition, twoForward));
     }
@@ -318,8 +311,6 @@ public class ChessPiece {
    */
   private Collection<ChessMove> generateMoves(
       ChessPosition[] directions, ChessBoard board, ChessPosition myPosition) {
-    System.out.println(String.format("\nGenerating moves for %s at: %s", this, myPosition));
-    System.out.println(String.format("Board:\n%s", board));
 
     var moves = new ArrayList<ChessMove>();
     for (var direction : directions) {
@@ -329,16 +320,11 @@ public class ChessPiece {
               myPosition.getColumn() + direction.getColumn());
       while (ChessBoard.isPositionWithinBoard(nextPosition)) {
         var piece = board.getPiece(nextPosition);
-        System.out.println(String.format("Piece at %s: %s", nextPosition, piece));
         if (piece == null) {
           var chessMove = new ChessMove(myPosition, nextPosition);
-          System.out.println(String.format("There is no piece at: %s", nextPosition));
-          System.out.println(String.format("Adding move: %s", chessMove));
           // If there is no piece at the next position, we can move there
           moves.add(chessMove);
           if (isPieceContinuous()) {
-            System.out.println(
-                String.format("Piece is continuous, continuing in direction: %s", direction));
             // Keep moving in the same direction until we hit a piece
             nextPosition =
                 new ChessPosition(

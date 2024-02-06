@@ -121,7 +121,7 @@ public class ChessBoard {
   public ChessPosition findPiece(ChessPiece piece) {
     for (int row = 0; row < 8; row++) {
       for (int col = 0; col < 8; col++) {
-        if (board[row][col].equals(piece)) {
+        if (piece.equals(board[row][col])) {
           return new ChessPosition(row + 1, col + 1);
         }
       }
@@ -142,8 +142,6 @@ public class ChessBoard {
             && position.getRow() <= 8
             && position.getColumn() >= 1
             && position.getColumn() <= 8);
-    System.out.println(
-        String.format("Position %s is within board: %s", position, positionWithinBoard));
     return positionWithinBoard;
   }
 
