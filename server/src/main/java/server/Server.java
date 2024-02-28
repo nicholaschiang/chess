@@ -4,20 +4,20 @@ import spark.*;
 
 public class Server {
 
-    public int run(int desiredPort) {
-        Spark.port(desiredPort);
+  public int run(int desiredPort) {
+    Spark.port(desiredPort);
 
-        Spark.staticFiles.location("web");
+    Spark.staticFiles.location("web");
 
-        // Register your endpoints and handle exceptions here.
-        Spark.get("/hello", (req, res) -> "Hello, World!");
+    // Register your endpoints and handle exceptions here.
+    Spark.get("/hello", (req, res) -> "Hello, World!");
 
-        Spark.awaitInitialization();
-        return Spark.port();
-    }
+    Spark.awaitInitialization();
+    return Spark.port();
+  }
 
-    public void stop() {
-        Spark.stop();
-        Spark.awaitStop();
-    }
+  public void stop() {
+    Spark.stop();
+    Spark.awaitStop();
+  }
 }

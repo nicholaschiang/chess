@@ -1,14 +1,15 @@
 package passoffTests.chessTests.chessPieceTests;
 
-import org.junit.jupiter.api.Test;
-
 import static passoffTests.TestFactory.*;
+
+import org.junit.jupiter.api.Test;
 
 public class KnightMoveTests {
 
-    @Test
-    public void knightMiddleOfBoardWhite() {
-        validateMoves("""
+  @Test
+  public void knightMiddleOfBoardWhite() {
+    validateMoves(
+        """
                         | | | | | | | | |
                         | | | | | | | | |
                         | | | | | | | | |
@@ -18,16 +19,17 @@ public class KnightMoveTests {
                         | | | | | | | | |
                         | | | | | | | | |
                         """,
-                startPosition(5, 5),
-                endPositions(new int[][]{
-                        {7, 6}, {6, 7}, {4, 7}, {3, 6}, {3, 4}, {4, 3}, {6, 3}, {7, 4},
-                })
-        );
-    }
+        startPosition(5, 5),
+        endPositions(
+            new int[][] {
+              {7, 6}, {6, 7}, {4, 7}, {3, 6}, {3, 4}, {4, 3}, {6, 3}, {7, 4},
+            }));
+  }
 
-    @Test
-    public void knightMiddleOfBoardBlack() {
-        validateMoves("""
+  @Test
+  public void knightMiddleOfBoardBlack() {
+    validateMoves(
+        """
                         | | | | | | | | |
                         | | | | | | | | |
                         | | | | | | | | |
@@ -37,17 +39,17 @@ public class KnightMoveTests {
                         | | | | | | | | |
                         | | | | | | | | |
                         """,
-                startPosition(5, 5),
-                endPositions(new int[][]{
-                        {7, 6}, {6, 7}, {4, 7}, {3, 6}, {3, 4}, {4, 3}, {6, 3}, {7, 4},
-                })
-        );
-    }
+        startPosition(5, 5),
+        endPositions(
+            new int[][] {
+              {7, 6}, {6, 7}, {4, 7}, {3, 6}, {3, 4}, {4, 3}, {6, 3}, {7, 4},
+            }));
+  }
 
-
-    @Test
-    public void knightEdgeOfBoardLeft() {
-        validateMoves("""
+  @Test
+  public void knightEdgeOfBoardLeft() {
+    validateMoves(
+        """
                         | | | | | | | | |
                         | | | | | | | | |
                         | | | | | | | | |
@@ -57,14 +59,14 @@ public class KnightMoveTests {
                         | | | | | | | | |
                         | | | | | | | | |
                         """,
-                startPosition(4, 1),
-                endPositions(new int[][]{{6, 2}, {5, 3}, {3, 3}, {2, 2}})
-        );
-    }
+        startPosition(4, 1),
+        endPositions(new int[][] {{6, 2}, {5, 3}, {3, 3}, {2, 2}}));
+  }
 
-    @Test
-    public void knightEdgeOfBoardRight() {
-        validateMoves("""
+  @Test
+  public void knightEdgeOfBoardRight() {
+    validateMoves(
+        """
                         | | | | | | | | |
                         | | | | | | | | |
                         | | | | | | | | |
@@ -74,14 +76,14 @@ public class KnightMoveTests {
                         | | | | | | | | |
                         | | | | | | | | |
                         """,
-                startPosition(3, 8),
-                endPositions(new int[][]{{1, 7}, {2, 6}, {4, 6}, {5, 7}})
-        );
-    }
+        startPosition(3, 8),
+        endPositions(new int[][] {{1, 7}, {2, 6}, {4, 6}, {5, 7}}));
+  }
 
-    @Test
-    public void knightEdgeOfBoardBottom() {
-        validateMoves("""
+  @Test
+  public void knightEdgeOfBoardBottom() {
+    validateMoves(
+        """
                         | | | | | | | | |
                         | | | | | | | | |
                         | | | | | | | | |
@@ -91,14 +93,14 @@ public class KnightMoveTests {
                         | | | | | | | | |
                         | | | | | |N| | |
                         """,
-                startPosition(1, 6),
-                endPositions(new int[][]{{2, 4}, {3, 5}, {3, 7}, {2, 8}})
-        );
-    }
+        startPosition(1, 6),
+        endPositions(new int[][] {{2, 4}, {3, 5}, {3, 7}, {2, 8}}));
+  }
 
-    @Test
-    public void knightEdgeOfBoardTop() {
-        validateMoves("""
+  @Test
+  public void knightEdgeOfBoardTop() {
+    validateMoves(
+        """
                         | | |N| | | | | |
                         | | | | | | | | |
                         | | | | | | | | |
@@ -108,15 +110,14 @@ public class KnightMoveTests {
                         | | | | | | | | |
                         | | | | | | | | |
                         """,
-                startPosition(8, 3),
-                endPositions(new int[][]{{7, 5}, {6, 4}, {6, 2}, {7, 1}})
-        );
-    }
+        startPosition(8, 3),
+        endPositions(new int[][] {{7, 5}, {6, 4}, {6, 2}, {7, 1}}));
+  }
 
-
-    @Test
-    public void knightCornerOfBoardBottomRight() {
-        validateMoves("""
+  @Test
+  public void knightCornerOfBoardBottomRight() {
+    validateMoves(
+        """
                         | | | | | | | | |
                         | | | | | | | | |
                         | | | | | | | | |
@@ -126,14 +127,14 @@ public class KnightMoveTests {
                         | | | | | | | | |
                         | | | | | | | |N|
                         """,
-                startPosition(1, 8),
-                endPositions(new int[][]{{2, 6}, {3, 7}})
-        );
-    }
+        startPosition(1, 8),
+        endPositions(new int[][] {{2, 6}, {3, 7}}));
+  }
 
-    @Test
-    public void knightCornerOfBoardTopRight() {
-        validateMoves("""
+  @Test
+  public void knightCornerOfBoardTopRight() {
+    validateMoves(
+        """
                         | | | | | | | |N|
                         | | | | | | | | |
                         | | | | | | | | |
@@ -143,14 +144,14 @@ public class KnightMoveTests {
                         | | | | | | | | |
                         | | | | | | | | |
                         """,
-                startPosition(8, 8),
-                endPositions(new int[][]{{6, 7}, {7, 6}})
-        );
-    }
+        startPosition(8, 8),
+        endPositions(new int[][] {{6, 7}, {7, 6}}));
+  }
 
-    @Test
-    public void knightCornerOfBoardTopLeft() {
-        validateMoves("""
+  @Test
+  public void knightCornerOfBoardTopLeft() {
+    validateMoves(
+        """
                         |n| | | | | | | |
                         | | | | | | | | |
                         | | | | | | | | |
@@ -160,14 +161,14 @@ public class KnightMoveTests {
                         | | | | | | | | |
                         | | | | | | | | |
                         """,
-                startPosition(8, 1),
-                endPositions(new int[][]{{7, 3}, {6, 2}})
-        );
-    }
+        startPosition(8, 1),
+        endPositions(new int[][] {{7, 3}, {6, 2}}));
+  }
 
-    @Test
-    public void knightCornerOfBoardBottomLeft() {
-        validateMoves("""
+  @Test
+  public void knightCornerOfBoardBottomLeft() {
+    validateMoves(
+        """
                         | | | | | | | | |
                         | | | | | | | | |
                         | | | | | | | | |
@@ -177,15 +178,14 @@ public class KnightMoveTests {
                         | | | | | | | | |
                         |n| | | | | | | |
                         """,
-                startPosition(1, 1),
-                endPositions(new int[][]{{2, 3}, {3, 2}})
-        );
-    }
+        startPosition(1, 1),
+        endPositions(new int[][] {{2, 3}, {3, 2}}));
+  }
 
-
-    @Test
-    public void knightBlocked() {
-        validateMoves("""
+  @Test
+  public void knightBlocked() {
+    validateMoves(
+        """
                         | | | | | | | | |
                         | | | |R| | | | |
                         | | | | | | |P| |
@@ -195,15 +195,14 @@ public class KnightMoveTests {
                         | | | | | | | | |
                         | | | | | | | | |
                         """,
-                startPosition(5, 5),
-                endPositions(new int[][]{{3, 4}, {3, 6}, {4, 7}, {7, 6}, {6, 3}})
-        );
-    }
+        startPosition(5, 5),
+        endPositions(new int[][] {{3, 4}, {3, 6}, {4, 7}, {7, 6}, {6, 3}}));
+  }
 
-
-    @Test
-    public void knightCaptureEnemy() {
-        validateMoves("""
+  @Test
+  public void knightCaptureEnemy() {
+    validateMoves(
+        """
                         | | | | | | | | |
                         | | | | | | | | |
                         | | | | | | | | |
@@ -213,8 +212,7 @@ public class KnightMoveTests {
                         | | | | | | | | |
                         | | | | | | | | |
                         """,
-                startPosition(5, 5),
-                endPositions(new int[][]{{7, 6}, {6, 7}, {4, 7}, {3, 6}, {3, 4}, {4, 3}, {6, 3}, {7, 4}})
-        );
-    }
+        startPosition(5, 5),
+        endPositions(new int[][] {{7, 6}, {6, 7}, {4, 7}, {3, 6}, {3, 4}, {4, 3}, {6, 3}, {7, 4}}));
+  }
 }
