@@ -1,6 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Collection;
 import java.util.Map;
 
@@ -118,7 +118,7 @@ public class ChessPiece {
       case PAWN:
         return pawnMoves(board, myPosition);
       default:
-        return new ArrayList<ChessMove>();
+        return new HashSet<ChessMove>();
     }
   }
 
@@ -229,7 +229,7 @@ public class ChessPiece {
    */
   private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
     // Pawns can only move forward one row (down for black, up for white)
-    var moves = new ArrayList<ChessMove>();
+    var moves = new HashSet<ChessMove>();
     var oneForward =
         new ChessPosition(
             myPosition.getRow() + (pieceColor == ChessGame.TeamColor.WHITE ? 1 : -1),
@@ -270,22 +270,22 @@ public class ChessPiece {
     }
 
     // Add moves for every possible promotion if one of the moves included in `moves` is a promotion
-    var promotionMoves = new ArrayList<ChessMove>();
-    var duplicateMoves = new ArrayList<ChessMove>();
+    var promotionMoves = new HashSet<ChessMove>();
+    var duplicateMoves = new HashSet<ChessMove>();
     for (var move : moves) {
       if (move.getEndPosition().getRow() == (pieceColor == ChessGame.TeamColor.WHITE ? 8 : 1)) {
-        promotionMoves.add(
-            new ChessMove(
-                move.getStartPosition(), move.getEndPosition(), ChessPiece.PieceType.QUEEN));
-        promotionMoves.add(
-            new ChessMove(
-                move.getStartPosition(), move.getEndPosition(), ChessPiece.PieceType.ROOK));
         promotionMoves.add(
             new ChessMove(
                 move.getStartPosition(), move.getEndPosition(), ChessPiece.PieceType.BISHOP));
         promotionMoves.add(
             new ChessMove(
                 move.getStartPosition(), move.getEndPosition(), ChessPiece.PieceType.KNIGHT));
+        promotionMoves.add(
+            new ChessMove(
+                move.getStartPosition(), move.getEndPosition(), ChessPiece.PieceType.ROOK));
+        promotionMoves.add(
+            new ChessMove(
+                move.getStartPosition(), move.getEndPosition(), ChessPiece.PieceType.QUEEN));
         duplicateMoves.add(move);
       }
     }
@@ -312,7 +312,7 @@ public class ChessPiece {
   private Collection<ChessMove> generateMoves(
       ChessPosition[] directions, ChessBoard board, ChessPosition myPosition) {
 
-    var moves = new ArrayList<ChessMove>();
+    var moves = new HashSet<ChessMove>();
     for (var direction : directions) {
       var nextPosition =
           new ChessPosition(

@@ -1,7 +1,7 @@
 package chess;
 
 import java.util.Collection;
-import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -63,7 +63,7 @@ public class ChessGame {
     var allMoves = piece.pieceMoves(board, startPosition);
 
     // All the moves that do not put the team's king in danger.
-    var validMoves = new ArrayList<ChessMove>();
+    var validMoves = new HashSet<ChessMove>();
     for (var move : allMoves) {
       var tempGame = new ChessGame(board, teamTurn);
       tempGame.getBoard().movePiece(move);
