@@ -37,4 +37,8 @@ public class GameData {
   public ChessGame getGame() {
     return game;
   }
+
+  public void setGame(ChessGame game) {
+    this.game = game;
+  }
 }
