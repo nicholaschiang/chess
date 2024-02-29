@@ -40,12 +40,18 @@ public class GameService {
       throw new ExceptionWithStatusCode(400, "bad request");
     }
     if (joinGameRequest.getPlayerColor() == TeamColor.WHITE) {
-      if (game.getWhiteUsername() != null) {
+      if (game.getWhiteUsername() == auth.getUsername()) {
+        // Already joined, nothing to do. The request is idempotent.
+        return game;
+      } else if (game.getWhiteUsername() != null) {
         throw new ExceptionWithStatusCode(403, "already taken");
       }
       game.setWhiteUsername(auth.getUsername());
     } else if (joinGameRequest.getPlayerColor() == TeamColor.BLACK) {
-      if (game.getBlackUsername() != null) {
+      if (game.getBlackUsername() == auth.getUsername()) {
+        // Already joined, nothing to do. The request is idempotent.
+        return game;
+      } else if (game.getBlackUsername() != null) {
         throw new ExceptionWithStatusCode(403, "already taken");
       }
       game.setBlackUsername(auth.getUsername());
