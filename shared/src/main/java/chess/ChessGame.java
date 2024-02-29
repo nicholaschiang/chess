@@ -12,6 +12,16 @@ public class ChessGame {
   private ChessBoard board;
   private TeamColor teamTurn;
 
+  @Override
+  public boolean equals(Object other) {
+    if (other instanceof ChessGame) {
+      ChessGame otherGame = (ChessGame) other;
+      return otherGame.board.equals(board) && otherGame.teamTurn.equals(teamTurn);
+    } else {
+      return false;
+    }
+  }
+
   public ChessGame() {
     teamTurn = TeamColor.WHITE;
     board = new ChessBoard();
