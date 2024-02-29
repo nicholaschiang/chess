@@ -13,6 +13,25 @@ public class ChessPiece {
   private ChessGame.TeamColor pieceColor;
   private ChessPiece.PieceType type;
 
+  private static ChessPosition[] allDirections = {
+    // Up
+    new ChessPosition(1, 0),
+    // Down
+    new ChessPosition(-1, 0),
+    // Left
+    new ChessPosition(0, -1),
+    // Right
+    new ChessPosition(0, 1),
+    // Up and left
+    new ChessPosition(1, -1),
+    // Up and right
+    new ChessPosition(1, 1),
+    // Down and left
+    new ChessPosition(-1, -1),
+    // Down and right
+    new ChessPosition(-1, 1)
+  };
+
   @Override
   public boolean equals(Object other) {
     if (other instanceof ChessPiece) {
@@ -106,9 +125,9 @@ public class ChessPiece {
   public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
     switch (type) {
       case KING:
-        return kingMoves(board, myPosition);
+        return allMoves(board, myPosition);
       case QUEEN:
-        return queenMoves(board, myPosition);
+        return allMoves(board, myPosition);
       case BISHOP:
         return bishopMoves(board, myPosition);
       case KNIGHT:
@@ -122,26 +141,8 @@ public class ChessPiece {
     }
   }
 
-  private Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
-    ChessPosition[] directions = {
-      // Up one row
-      new ChessPosition(1, 0),
-      // Down one row
-      new ChessPosition(-1, 0),
-      // Left one column
-      new ChessPosition(0, -1),
-      // Right one column
-      new ChessPosition(0, 1),
-      // Up one row, left one column
-      new ChessPosition(1, -1),
-      // Up one row, right one column
-      new ChessPosition(1, 1),
-      // Down one row, left one column
-      new ChessPosition(-1, -1),
-      // Down one row, right one column
-      new ChessPosition(-1, 1)
-    };
-    return generateMoves(directions, board, myPosition);
+  private Collection<ChessMove> allMoves(ChessBoard board, ChessPosition myPosition) {
+    return generateMoves(allDirections, board, myPosition);
   }
 
   private Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition) {
@@ -162,28 +163,6 @@ public class ChessPiece {
       new ChessPosition(-1, -2),
       // Down two and left one
       new ChessPosition(-2, -1),
-    };
-    return generateMoves(directions, board, myPosition);
-  }
-
-  private Collection<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition) {
-    ChessPosition[] directions = {
-      // Up
-      new ChessPosition(1, 0),
-      // Down
-      new ChessPosition(-1, 0),
-      // Left
-      new ChessPosition(0, -1),
-      // Right
-      new ChessPosition(0, 1),
-      // Up and left
-      new ChessPosition(1, -1),
-      // Up and right
-      new ChessPosition(1, 1),
-      // Down and left
-      new ChessPosition(-1, -1),
-      // Down and right
-      new ChessPosition(-1, 1)
     };
     return generateMoves(directions, board, myPosition);
   }
