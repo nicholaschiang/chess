@@ -1,10 +1,11 @@
 package dataAccess;
 
+import java.util.HashMap;
 import java.util.Map;
 import model.GameData;
 
 public class MemoryGameDataAccess implements GameDataAccess {
-  private Map<Integer, GameData> games;
+  private Map<Integer, GameData> games = new HashMap<Integer, GameData>();
 
   // Clears all games.
   public void clear() {

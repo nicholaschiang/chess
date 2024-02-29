@@ -1,10 +1,11 @@
 package dataAccess;
 
 import java.util.Map;
+import java.util.HashMap;
 import model.AuthData;
 
 public class MemoryAuthDataAccess implements AuthDataAccess {
-  private Map<String, AuthData> auths;
+  private Map<String, AuthData> auths = new HashMap<String, AuthData>();
 
   // Clear all auths.
   public void clear() {

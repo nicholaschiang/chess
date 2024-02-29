@@ -1,10 +1,11 @@
 package dataAccess;
 
 import java.util.Map;
+import java.util.HashMap;
 import model.UserData;
 
 public class MemoryUserDataAccess implements UserDataAccess {
-  private Map<String, UserData> users;
+  private Map<String, UserData> users = new HashMap<String, UserData>();
 
   // Clears all users.
   public void clear() {
