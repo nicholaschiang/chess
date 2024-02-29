@@ -43,6 +43,15 @@ public class Server {
         (request, response) -> {
           try {
             UserData user = gson.fromJson(request.body(), UserData.class);
+            if (user.getUsername() == null || user.getPassword() == null) {
+              response.status(400);
+              return gson.toJson(new ErrorResponse("bad request"));
+            }
+            UserData existingUser = userDataAccess.getUser(user.getUsername());
+            if (existingUser != null) {
+              response.status(403);
+              return gson.toJson(new ErrorResponse("already taken"));
+            }
             userDataAccess.createUser(user);
             String authToken = AuthService.generateNewToken();
             AuthData authData = new AuthData(user.getUsername(), authToken);
@@ -103,7 +112,8 @@ public class Server {
               response.status(401);
               return gson.toJson(new ErrorResponse("unauthorized"));
             }
-            return gson.toJson(gameDataAccess.listGames());
+            var data = new ListGamesResponse(gameDataAccess.listGames());
+            return gson.toJson(data);
           } catch (Exception e) {
             response.status(500);
             return gson.toJson(new ErrorResponse(e.getMessage()));
@@ -150,12 +160,23 @@ public class Server {
               return gson.toJson(new ErrorResponse("game not found"));
             }
             if (joinGameRequest.getPlayerColor() == TeamColor.WHITE) {
+              if (game.getWhiteUsername() != null) {
+                response.status(403);
+                return gson.toJson(new ErrorResponse("already taken"));
+              }
               game.setWhiteUsername(auth.getUsername());
             } else if (joinGameRequest.getPlayerColor() == TeamColor.BLACK) {
+              if (game.getBlackUsername() != null) {
+                response.status(403);
+                return gson.toJson(new ErrorResponse("already taken"));
+              }
               game.setBlackUsername(auth.getUsername());
-            } else {
+            } else if (joinGameRequest.getPlayerColor() == null) {
               // Add observer. Right now, there's nothing in the specification that
               // actually requires this to be done. No "observer" fields required.
+            } else {
+              response.status(400);
+              return gson.toJson(new ErrorResponse("invalid color"));
             }
             gameDataAccess.updateGame(game.getGameId(), game);
             return gson.toJson(game);
