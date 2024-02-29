@@ -156,8 +156,8 @@ public class Server {
             JoinGameRequest joinGameRequest = gson.fromJson(request.body(), JoinGameRequest.class);
             GameData game = gameDataAccess.getGame(joinGameRequest.getGameId());
             if (game == null) {
-              response.status(404);
-              return gson.toJson(new ErrorResponse("game not found"));
+              response.status(400);
+              return gson.toJson(new ErrorResponse("bad request"));
             }
             if (joinGameRequest.getPlayerColor() == TeamColor.WHITE) {
               if (game.getWhiteUsername() != null) {

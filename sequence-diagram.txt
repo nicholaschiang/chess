@@ -75,18 +75,18 @@ Server-->Client:201\nContent-Type: application/json\n{game}
 end
 
 group #yellow Join Game #black
-Client -> Server: [PUT] /game\nauthToken\n{clientColor, gameId}
+Client -> Server: [PUT] /game\nauthToken\n{clientColor, gameID}
 Server->RegistrationService:verifyAuth(authToken)
 RegistrationService->DataAccess:getAuth(authToken)
 DataAccess->db:SELECT username FROM auth WHERE authToken = {authToken}
 DataAccess-->RegistrationService:username
 RegistrationService-->Server:username
-Server->GameService:joinGame(gameId, username, clientColor)
-GameService->DataAccess:getGame(gameId)
-DataAccess->db:SELECT * FROM game WHERE id = {gameId}
+Server->GameService:joinGame(gameID, username, clientColor)
+GameService->DataAccess:getGame(gameID)
+DataAccess->db:SELECT * FROM game WHERE id = {gameID}
 DataAccess-->GameService:game
-GameService->DataAccess:addPlayer(gameId, username, clientColor)\n-OR-\naddObserver(gameId, username)
-DataAccess->db:UPDATE game SET {clientColor} = {username} WHERE id = {gameId}\n-OR-\nINSERT INTO rel_game_observer VALUES ({gameId}, {username})
+GameService->DataAccess:addPlayer(gameID, username, clientColor)\n-OR-\naddObserver(gameID, username)
+DataAccess->db:UPDATE game SET {clientColor} = {username} WHERE id = {gameID}\n-OR-\nINSERT INTO rel_game_observer VALUES ({gameID}, {username})
 DataAccess-->GameService:game
 GameService-->Server:game
 Server-->Client:200\nContent-Type: application/json\n{game}

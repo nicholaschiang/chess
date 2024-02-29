@@ -4,11 +4,11 @@ import chess.ChessGame.TeamColor;
 
 public class JoinGameRequest {
   private TeamColor playerColor;
-  private int gameId;
+  private int gameID;
 
-  public JoinGameRequest(TeamColor playerColor, int gameId) {
+  public JoinGameRequest(TeamColor playerColor, int gameID) {
     this.playerColor = playerColor;
-    this.gameId = gameId;
+    this.gameID = gameID;
   }
 
   public TeamColor getPlayerColor() {
@@ -16,6 +16,6 @@ public class JoinGameRequest {
   }
 
   public int getGameId() {
-    return gameId;
+    return gameID;
   }
 }

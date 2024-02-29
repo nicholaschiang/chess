@@ -7,7 +7,7 @@ public interface GameDataAccess extends DataAccess {
   public void createGame(GameData game);
 
   // Retrieve a specified game with the given game ID.
-  public GameData getGame(int gameId);
+  public GameData getGame(int gameID);
 
   // Retrieve all games.
   public GameData[] listGames();
@@ -15,5 +15,5 @@ public interface GameDataAccess extends DataAccess {
   // Updates a chess game. It should replace the chess game string corresponding
   // to a given gameID. This is used when players join a game or when a move is
   // made.
-  public void updateGame(int gameId, GameData game);
+  public void updateGame(int gameID, GameData game) throws DataAccessException;
 }

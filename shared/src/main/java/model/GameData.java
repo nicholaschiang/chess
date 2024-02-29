@@ -3,15 +3,15 @@ package model;
 import chess.ChessGame;
 
 public class GameData {
-  private int gameId;
+  private int gameID;
   private String whiteUsername;
   private String blackUsername;
   private String gameName;
   private ChessGame game;
 
   public GameData(
-      int gameId, String whiteUsername, String blackUsername, String gameName, ChessGame game) {
-    this.gameId = gameId;
+      int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) {
+    this.gameID = gameID;
     this.whiteUsername = whiteUsername;
     this.blackUsername = blackUsername;
     this.gameName = gameName;
@@ -19,7 +19,11 @@ public class GameData {
   }
 
   public int getGameId() {
-    return gameId;
+    return gameID;
+  }
+
+  public void setGameId(int gameID) {
+    this.gameID = gameID;
   }
 
   public String getWhiteUsername() {
