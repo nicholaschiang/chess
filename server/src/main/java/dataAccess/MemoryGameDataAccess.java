@@ -1,12 +1,15 @@
 package dataAccess;
 
 import java.util.Map;
-
 import model.GameData;
-import chess.ChessGame;
 
-class MemoryGameDataAccess implements GameDataAccess {
+public class MemoryGameDataAccess implements GameDataAccess {
   private Map<Integer, GameData> games;
+
+  // Clears all games.
+  public void clear() {
+    games.clear();
+  }
 
   // Create a new game.
   public void createGame(GameData game) {
@@ -26,7 +29,7 @@ class MemoryGameDataAccess implements GameDataAccess {
   // Updates a chess game. It should replace the chess game string corresponding
   // to a given gameID. This is used when players join a game or when a move is
   // made.
-  public void updateGame(int gameId, ChessGame game) {
-    games.get(gameId).setGame(game);
+  public void updateGame(int gameId, GameData game) {
+    games.put(gameId, game);
   }
 }

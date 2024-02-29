@@ -1,11 +1,15 @@
 package dataAccess;
 
 import java.util.Map;
-
 import model.UserData;
 
-class interfaceMemoryUserDataAccess implements UserDataAccess {
+public class MemoryUserDataAccess implements UserDataAccess {
   private Map<String, UserData> users;
+
+  // Clears all users.
+  public void clear() {
+    users.clear();
+  }
 
   // Create a new user.
   public void createUser(UserData user) {

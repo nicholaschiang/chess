@@ -2,7 +2,7 @@ package dataAccess;
 
 import model.AuthData;
 
-interface AuthDataAccess {
+public interface AuthDataAccess extends DataAccess {
   // Create a new authorization.
   public void createAuth(AuthData auth);
 

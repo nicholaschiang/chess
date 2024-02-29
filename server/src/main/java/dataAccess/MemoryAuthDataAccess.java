@@ -3,8 +3,13 @@ package dataAccess;
 import java.util.Map;
 import model.AuthData;
 
-class MemoryAuthDataAccess implements AuthDataAccess {
+public class MemoryAuthDataAccess implements AuthDataAccess {
   private Map<String, AuthData> auths;
+
+  // Clear all auths.
+  public void clear() {
+    auths.clear();
+  }
 
   // Create a new authorization.
   public void createAuth(AuthData auth) {

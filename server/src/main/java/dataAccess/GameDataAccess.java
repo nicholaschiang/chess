@@ -1,9 +1,8 @@
 package dataAccess;
 
 import model.GameData;
-import chess.ChessGame;
 
-interface GameDataAccess {
+public interface GameDataAccess extends DataAccess {
   // Create a new game.
   public void createGame(GameData game);
 
@@ -16,5 +15,5 @@ interface GameDataAccess {
   // Updates a chess game. It should replace the chess game string corresponding
   // to a given gameID. This is used when players join a game or when a move is
   // made.
-  public void updateGame(int gameId, ChessGame game);
+  public void updateGame(int gameId, GameData game);
 }

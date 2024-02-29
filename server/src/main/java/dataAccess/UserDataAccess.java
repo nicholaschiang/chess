@@ -2,7 +2,7 @@ package dataAccess;
 
 import model.UserData;
 
-interface UserDataAccess {
+public interface UserDataAccess extends DataAccess {
   // Create a new user.
   public void createUser(UserData user);
 

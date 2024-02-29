@@ -30,6 +30,14 @@ public class GameData {
     return blackUsername;
   }
 
+  public void setWhiteUsername(String whiteUsername) {
+    this.whiteUsername = whiteUsername;
+  }
+
+  public void setBlackUsername(String blackUsername) {
+    this.blackUsername = blackUsername;
+  }
+
   public String getGameName() {
     return gameName;
   }
