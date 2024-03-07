@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.*;
+import exception.ResponseException;
 import model.*;
 import service.*;
 import spark.*;
@@ -44,7 +45,7 @@ public class Server {
           try {
             UserData user = gson.fromJson(request.body(), UserData.class);
             return gson.toJson(userService.registerUser(user));
-          } catch (ExceptionWithStatusCode e) {
+          } catch (ResponseException e) {
             response.status(e.getStatusCode());
             return gson.toJson(new ErrorResponse(e.getMessage()));
           } catch (Exception e) {
@@ -60,7 +61,7 @@ public class Server {
           try {
             LoginRequest loginRequest = gson.fromJson(request.body(), LoginRequest.class);
             return gson.toJson(userService.loginUser(loginRequest));
-          } catch (ExceptionWithStatusCode e) {
+          } catch (ResponseException e) {
             response.status(e.getStatusCode());
             return gson.toJson(new ErrorResponse(e.getMessage()));
           } catch (Exception e) {
@@ -77,7 +78,7 @@ public class Server {
             String authToken = request.headers("Authorization");
             userService.logoutUser(authToken);
             return "";
-          } catch (ExceptionWithStatusCode e) {
+          } catch (ResponseException e) {
             response.status(e.getStatusCode());
             return gson.toJson(new ErrorResponse(e.getMessage()));
           } catch (Exception e) {
@@ -93,7 +94,7 @@ public class Server {
           try {
             String authToken = request.headers("Authorization");
             return gson.toJson(gameService.listGames(authToken));
-          } catch (ExceptionWithStatusCode e) {
+          } catch (ResponseException e) {
             response.status(e.getStatusCode());
             return gson.toJson(new ErrorResponse(e.getMessage()));
           } catch (Exception e) {
@@ -110,7 +111,7 @@ public class Server {
             String authToken = request.headers("Authorization");
             GameData gameData = gson.fromJson(request.body(), GameData.class);
             return gson.toJson(gameService.createGame(authToken, gameData));
-          } catch (ExceptionWithStatusCode e) {
+          } catch (ResponseException e) {
             response.status(e.getStatusCode());
             return gson.toJson(new ErrorResponse(e.getMessage()));
           } catch (Exception e) {
@@ -130,7 +131,7 @@ public class Server {
             String authToken = request.headers("Authorization");
             JoinGameRequest joinGameRequest = gson.fromJson(request.body(), JoinGameRequest.class);
             return gson.toJson(gameService.joinGame(authToken, joinGameRequest));
-          } catch (ExceptionWithStatusCode e) {
+          } catch (ResponseException e) {
             response.status(e.getStatusCode());
             return gson.toJson(new ErrorResponse(e.getMessage()));
           } catch (Exception e) {

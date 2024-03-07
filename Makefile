@@ -1,6 +1,9 @@
 all: run
 
-compile:
+clean:
+	mvn clean
+
+compile: clean
 	mvn package -Dmaven.test.skip
 
 run: compile

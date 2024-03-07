@@ -1,9 +1,9 @@
-package service;
+package exception;
 
-public class ExceptionWithStatusCode extends Exception {
+public class ResponseException extends Exception {
   private int statusCode;
 
-  public ExceptionWithStatusCode(int statusCode, String message) {
+  public ResponseException(int statusCode, String message) {
     super(message);
     this.statusCode = statusCode;
   }

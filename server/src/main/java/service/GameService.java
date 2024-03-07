@@ -2,6 +2,7 @@ package service;
 
 import chess.ChessGame.TeamColor;
 import dataAccess.*;
+import exception.ResponseException;
 import model.*;
 import server.*;
 
@@ -14,37 +15,37 @@ public class GameService {
     this.gameDataAccess = gameDataAccess;
   }
 
-  public ListGamesResponse listGames(String authToken) throws ExceptionWithStatusCode {
+  public ListGamesResponse listGames(String authToken) throws ResponseException {
     if (authDataAccess.getAuth(authToken) == null) {
-      throw new ExceptionWithStatusCode(401, "unauthorized");
+      throw new ResponseException(401, "unauthorized");
     }
     return new ListGamesResponse(gameDataAccess.listGames());
   }
 
-  public GameData createGame(String authToken, GameData gameData) throws ExceptionWithStatusCode {
+  public GameData createGame(String authToken, GameData gameData) throws ResponseException {
     if (authDataAccess.getAuth(authToken) == null) {
-      throw new ExceptionWithStatusCode(401, "unauthorized");
+      throw new ResponseException(401, "unauthorized");
     }
     gameDataAccess.createGame(gameData);
     return gameData;
   }
 
   public GameData joinGame(String authToken, JoinGameRequest joinGameRequest)
-      throws ExceptionWithStatusCode {
+      throws ResponseException {
     AuthData auth = authDataAccess.getAuth(authToken);
     if (auth == null) {
-      throw new ExceptionWithStatusCode(401, "unauthorized");
+      throw new ResponseException(401, "unauthorized");
     }
     GameData game = gameDataAccess.getGame(joinGameRequest.getGameId());
     if (game == null) {
-      throw new ExceptionWithStatusCode(400, "bad request");
+      throw new ResponseException(400, "bad request");
     }
     if (joinGameRequest.getPlayerColor() == TeamColor.WHITE) {
       if (game.getWhiteUsername() == auth.getUsername()) {
         // Already joined, nothing to do. The request is idempotent.
         return game;
       } else if (game.getWhiteUsername() != null) {
-        throw new ExceptionWithStatusCode(403, "already taken");
+        throw new ResponseException(403, "already taken");
       }
       game.setWhiteUsername(auth.getUsername());
     } else if (joinGameRequest.getPlayerColor() == TeamColor.BLACK) {
@@ -52,19 +53,19 @@ public class GameService {
         // Already joined, nothing to do. The request is idempotent.
         return game;
       } else if (game.getBlackUsername() != null) {
-        throw new ExceptionWithStatusCode(403, "already taken");
+        throw new ResponseException(403, "already taken");
       }
       game.setBlackUsername(auth.getUsername());
     } else if (joinGameRequest.getPlayerColor() == null) {
       // Add observer. Right now, there's nothing in the specification that
       // actually requires this to be done. No "observer" fields required.
     } else {
-      throw new ExceptionWithStatusCode(400, "invalid color");
+      throw new ResponseException(400, "invalid color");
     }
     try {
       gameDataAccess.updateGame(game.getGameId(), game);
     } catch (DataAccessException e) {
-      throw new ExceptionWithStatusCode(500, e.getMessage());
+      throw new ResponseException(500, e.getMessage());
     }
     return game;
   }

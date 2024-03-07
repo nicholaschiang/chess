@@ -2,6 +2,7 @@ package serviceTests;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import exception.ResponseException;
 import model.*;
 import org.junit.jupiter.api.*;
 import server.*;
@@ -32,7 +33,7 @@ public class UserServiceTests extends ServiceTests {
 
     // Try to create the same user again.
     assertThrows(
-        ExceptionWithStatusCode.class,
+        ResponseException.class,
         () -> {
           userService.registerUser(userData);
         },
@@ -66,7 +67,7 @@ public class UserServiceTests extends ServiceTests {
     // Login the user.
     LoginRequest loginRequest = new LoginRequest(userData.getUsername(), "wrong");
     assertThrows(
-        ExceptionWithStatusCode.class,
+        ResponseException.class,
         () -> {
           userService.loginUser(loginRequest);
         },
@@ -96,7 +97,7 @@ public class UserServiceTests extends ServiceTests {
 
     // Logout the user.
     assertThrows(
-        ExceptionWithStatusCode.class,
+        ResponseException.class,
         () -> {
           userService.logoutUser("wrong");
         },

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import chess.ChessGame;
 import chess.ChessGame.TeamColor;
+import exception.ResponseException;
 import model.*;
 import org.junit.jupiter.api.*;
 import server.*;
@@ -43,7 +44,7 @@ public class GameServiceTests extends ServiceTests {
   @DisplayName("List Games Unauthorized")
   public void listGamesUnauthorized() throws Exception {
     assertThrows(
-        ExceptionWithStatusCode.class,
+        ResponseException.class,
         () -> {
           gameService.listGames("invalidToken");
         },
@@ -75,7 +76,7 @@ public class GameServiceTests extends ServiceTests {
   public void createGameUnauthorized() throws Exception {
     GameData newGameData = new GameData(2, "john", null, "newName", new ChessGame());
     assertThrows(
-        ExceptionWithStatusCode.class,
+        ResponseException.class,
         () -> {
           gameService.createGame("invalidToken", newGameData);
         },
@@ -117,7 +118,7 @@ public class GameServiceTests extends ServiceTests {
 
     // Try to join the game again with a different user.
     assertThrows(
-        ExceptionWithStatusCode.class,
+        ResponseException.class,
         () -> {
           gameService.joinGame(authData2.getAuthToken(), joinGameRequest);
         },
