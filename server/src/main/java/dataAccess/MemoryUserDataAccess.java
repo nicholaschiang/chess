@@ -1,7 +1,7 @@
 package dataAccess;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 import model.UserData;
 
 public class MemoryUserDataAccess implements UserDataAccess {

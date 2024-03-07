@@ -2,8 +2,8 @@ package serviceTests;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import service.AuthService;
 import org.junit.jupiter.api.*;
+import service.AuthService;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AuthServiceTests extends ServiceTests {
