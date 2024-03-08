@@ -7,18 +7,19 @@ import exception.ResponseException;
 import java.sql.*;
 
 abstract class SQLDataAccess {
-  public SQLDataAccess() throws ResponseException {
-    configureDatabase();
+  public SQLDataAccess(final String[] createStatements) throws ResponseException {
+    configureDatabase(createStatements);
   }
 
-  protected final String[] createStatements = {};
-
-  private void configureDatabase() throws ResponseException {
+  private void configureDatabase(final String[] createStatements) throws ResponseException {
+    System.out.println("Configuring database...");
     try {
       DatabaseManager.createDatabase();
       try (var conn = DatabaseManager.getConnection()) {
+        System.out.println("Creating tables...");
         for (var statement : createStatements) {
           try (var preparedStatement = conn.prepareStatement(statement)) {
+            System.out.println("Executing: " + statement);
             preparedStatement.executeUpdate();
           }
         }

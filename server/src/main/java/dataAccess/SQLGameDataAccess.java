@@ -9,21 +9,23 @@ import java.util.Collection;
 import model.GameData;
 
 public class SQLGameDataAccess extends SQLDataAccess implements GameDataAccess {
-  protected final String[] createStatements = {
+  private static final String[] createStatements = {
     """
     CREATE TABLE IF NOT EXISTS game (
-      `gameID` int NOT NULL AUTO_INCREMENT,
-      `whiteUsername` varchar(256) NOT NULL,
-      `blackUsername` varchar(256) NOT NULL,
-      `gameName` varchar(256) NOT NULL,
-      `json` TEXT DEFAULT NULL,
-      PRIMARY KEY (`gameID`),
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+      gameID int NOT NULL AUTO_INCREMENT,
+      whiteUsername varchar(256) NOT NULL,
+      blackUsername varchar(256) NOT NULL,
+      gameName varchar(256) NOT NULL,
+      json TEXT DEFAULT NULL,
+      PRIMARY KEY (gameID),
+      FOREIGN KEY (whiteUsername) REFERENCES user(username),
+      FOREIGN KEY (blackUsername) REFERENCES user(username)
+    )
     """
   };
 
   public SQLGameDataAccess() throws ResponseException {
-    super();
+    super(createStatements);
   }
 
   // Clears all games.

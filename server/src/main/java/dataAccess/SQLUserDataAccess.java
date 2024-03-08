@@ -5,19 +5,19 @@ import java.sql.*;
 import model.UserData;
 
 public class SQLUserDataAccess extends SQLDataAccess implements UserDataAccess {
-  protected final String[] createStatements = {
+  private static final String[] createStatements = {
     """
     CREATE TABLE IF NOT EXISTS user (
-      `username` varchar(256) NOT NULL,
-      `password` varchar(256) NOT NULL,
-      `email` varchar(256) NOT NULL,
-      PRIMARY KEY (`username`),
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+      username varchar(256) NOT NULL,
+      password varchar(256) NOT NULL,
+      email varchar(256) NOT NULL,
+      PRIMARY KEY (username)
+    );
     """
   };
 
   public SQLUserDataAccess() throws ResponseException {
-    super();
+    super(createStatements);
   }
 
   // Clears all users.

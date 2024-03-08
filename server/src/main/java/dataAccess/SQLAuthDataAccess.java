@@ -4,19 +4,19 @@ import exception.ResponseException;
 import model.AuthData;
 
 public class SQLAuthDataAccess extends SQLDataAccess implements AuthDataAccess {
-  protected final String[] createStatements = {
+  private static final String[] createStatements = {
     """
     CREATE TABLE IF NOT EXISTS auth (
-      `username` varchar(256) NOT NULL,
-      `authToken` varchar(256) NOT NULL,
-      PRIMARY KEY (`authToken`),
-      INDEX(username),
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+      username varchar(256) NOT NULL,
+      authToken varchar(256) NOT NULL,
+      PRIMARY KEY (authToken),
+      FOREIGN KEY (username) REFERENCES user(username)
+    );
     """
   };
 
   public SQLAuthDataAccess() throws ResponseException {
-    super();
+    super(createStatements);
   }
 
   // Clear all auths.
