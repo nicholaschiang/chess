@@ -13,10 +13,10 @@ public class SQLGameDataAccess extends SQLDataAccess implements GameDataAccess {
     """
     CREATE TABLE IF NOT EXISTS game (
       gameID int NOT NULL AUTO_INCREMENT,
-      whiteUsername varchar(256) NOT NULL,
-      blackUsername varchar(256) NOT NULL,
+      whiteUsername varchar(256) NULL,
+      blackUsername varchar(256) NULL,
       gameName varchar(256) NOT NULL,
-      json TEXT DEFAULT NULL,
+      json TEXT NULL,
       PRIMARY KEY (gameID),
       FOREIGN KEY (whiteUsername) REFERENCES user(username),
       FOREIGN KEY (blackUsername) REFERENCES user(username)
@@ -38,12 +38,15 @@ public class SQLGameDataAccess extends SQLDataAccess implements GameDataAccess {
   public GameData createGame(GameData game) throws ResponseException {
     var statement =
         "INSERT INTO game (whiteUsername, blackUsername, gameName, json) VALUES (?, ?, ?, ?)";
-    var json = new Gson().toJson(game.getGame());
-    var id =
-        executeUpdate(
-            statement, game.getWhiteUsername(), game.getBlackUsername(), game.getGameName(), json);
-    return new GameData(
-        id, game.getWhiteUsername(), game.getBlackUsername(), game.getGameName(), game.getGame());
+    var json = game.getGame() == null ? null : new Gson().toJson(game.getGame());
+    var whiteUsername = game.getWhiteUsername();
+    var blackUsername = game.getBlackUsername();
+    var gameName = game.getGameName();
+    System.out.println(
+        "Creating game: " + whiteUsername + ", " + blackUsername + ", " + gameName + ", " + json);
+    var id = executeUpdate(statement, whiteUsername, blackUsername, gameName, json);
+    System.out.println("Created game with ID: " + id);
+    return new GameData(id, whiteUsername, blackUsername, gameName, game.getGame());
   }
 
   // Updates a chess game. It should replace the chess game string corresponding
@@ -102,12 +105,12 @@ public class SQLGameDataAccess extends SQLDataAccess implements GameDataAccess {
   }
 
   private GameData readGame(ResultSet rs) throws SQLException {
-    var id = rs.getInt("id");
+    var gameID = rs.getInt("gameID");
     var whiteUsername = rs.getString("whiteUsername");
     var blackUsername = rs.getString("blackUsername");
     var gameName = rs.getString("gameName");
     var json = rs.getString("json");
     var game = new Gson().fromJson(json, ChessGame.class);
-    return new GameData(id, whiteUsername, blackUsername, gameName, game);
+    return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
   }
 }

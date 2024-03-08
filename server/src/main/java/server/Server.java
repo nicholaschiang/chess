@@ -25,7 +25,7 @@ public class Server {
       gameService = new GameService(authDataAccess, gameDataAccess);
       dataService = new DataService(userDataAccess, authDataAccess, gameDataAccess);
     } catch (Throwable ex) {
-      System.out.println("Failed to initialize server: " + ex.getMessage());
+      System.err.println("Failed to initialize server: " + ex.getMessage());
       ex.printStackTrace();
     }
   }
@@ -47,6 +47,7 @@ public class Server {
             dataService.clearData();
             return "";
           } catch (ResponseException e) {
+            System.err.println("Error clearing data: " + e.getMessage());
             response.status(e.getStatusCode());
             return gson.toJson(new ErrorResponse(e.getMessage()));
           } catch (Exception e) {
@@ -63,6 +64,7 @@ public class Server {
             UserData user = gson.fromJson(request.body(), UserData.class);
             return gson.toJson(userService.registerUser(user));
           } catch (ResponseException e) {
+            System.err.println("Error registering user: " + e.getMessage());
             response.status(e.getStatusCode());
             return gson.toJson(new ErrorResponse(e.getMessage()));
           } catch (Exception e) {
@@ -79,6 +81,7 @@ public class Server {
             LoginRequest loginRequest = gson.fromJson(request.body(), LoginRequest.class);
             return gson.toJson(userService.loginUser(loginRequest));
           } catch (ResponseException e) {
+            System.err.println("Error logging in: " + e.getMessage());
             response.status(e.getStatusCode());
             return gson.toJson(new ErrorResponse(e.getMessage()));
           } catch (Exception e) {
@@ -96,6 +99,7 @@ public class Server {
             userService.logoutUser(authToken);
             return "";
           } catch (ResponseException e) {
+            System.err.println("Error logging out: " + e.getMessage());
             response.status(e.getStatusCode());
             return gson.toJson(new ErrorResponse(e.getMessage()));
           } catch (Exception e) {
@@ -112,6 +116,7 @@ public class Server {
             String authToken = request.headers("Authorization");
             return gson.toJson(gameService.listGames(authToken));
           } catch (ResponseException e) {
+            System.err.println("Error listing games: " + e.getMessage());
             response.status(e.getStatusCode());
             return gson.toJson(new ErrorResponse(e.getMessage()));
           } catch (Exception e) {
@@ -129,6 +134,7 @@ public class Server {
             GameData gameData = gson.fromJson(request.body(), GameData.class);
             return gson.toJson(gameService.createGame(authToken, gameData));
           } catch (ResponseException e) {
+            System.err.println("Error creating game: " + e.getMessage());
             response.status(e.getStatusCode());
             return gson.toJson(new ErrorResponse(e.getMessage()));
           } catch (Exception e) {
@@ -149,6 +155,7 @@ public class Server {
             JoinGameRequest joinGameRequest = gson.fromJson(request.body(), JoinGameRequest.class);
             return gson.toJson(gameService.joinGame(authToken, joinGameRequest));
           } catch (ResponseException e) {
+            System.err.println("Error joining game: " + e.getMessage());
             response.status(e.getStatusCode());
             return gson.toJson(new ErrorResponse(e.getMessage()));
           } catch (Exception e) {

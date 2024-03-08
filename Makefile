@@ -13,7 +13,7 @@ format:
 	find . -name "*.java" -type f -print | xargs google-java-format --replace
 
 test:
-	mvn test -Dtest="StandardAPITests#loginInvalidUser" -Dsurefire.failIfNoSpecifiedTests=false
+	mvn test -Dtest="StandardAPITests#goodJoin" -Dsurefire.failIfNoSpecifiedTests=false
 
 db:
 	docker run --name chess -p 3306:3306 -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=chess -d mysql

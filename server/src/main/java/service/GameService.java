@@ -26,8 +26,7 @@ public class GameService {
     if (authDataAccess.getAuth(authToken) == null) {
       throw new ResponseException(401, "unauthorized");
     }
-    gameDataAccess.createGame(gameData);
-    return gameData;
+    return gameDataAccess.createGame(gameData);
   }
 
   public GameData joinGame(String authToken, JoinGameRequest joinGameRequest)
@@ -62,7 +61,6 @@ public class GameService {
     } else {
       throw new ResponseException(400, "invalid color");
     }
-    gameDataAccess.updateGame(game.getGameId(), game);
-    return game;
+    return gameDataAccess.updateGame(game.getGameId(), game);
   }
 }

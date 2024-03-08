@@ -27,8 +27,7 @@ public class UserService {
     userDataAccess.createUser(user);
     String authToken = AuthService.generateNewToken();
     AuthData authData = new AuthData(user.getUsername(), authToken);
-    authDataAccess.createAuth(authData);
-    return authData;
+    return authDataAccess.createAuth(authData);
   }
 
   public AuthData loginUser(LoginRequest loginRequest) throws ResponseException {
@@ -39,8 +38,7 @@ public class UserService {
     }
     String authToken = AuthService.generateNewToken();
     AuthData authData = new AuthData(user.getUsername(), authToken);
-    authDataAccess.createAuth(authData);
-    return authData;
+    return authDataAccess.createAuth(authData);
   }
 
   public void logoutUser(String authToken) throws ResponseException {
