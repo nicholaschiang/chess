@@ -1,15 +1,16 @@
 package server;
 
 import model.GameData;
+import java.util.Collection;
 
 public class ListGamesResponse {
-  private GameData[] games;
+  private Collection<GameData> games;
 
-  public ListGamesResponse(GameData[] games) {
+  public ListGamesResponse(Collection<GameData> games) {
     this.games = games;
   }
 
-  public GameData[] getGames() {
+  public Collection<GameData> getGames() {
     return games;
   }
 }

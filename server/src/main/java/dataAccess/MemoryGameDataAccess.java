@@ -1,5 +1,7 @@
 package dataAccess;
 
+import exception.ResponseException;
+import java.util.Collection;
 import java.util.ArrayList;
 import model.GameData;
 
@@ -17,9 +19,10 @@ public class MemoryGameDataAccess implements GameDataAccess {
   }
 
   // Create a new game.
-  public void createGame(GameData game) {
+  public GameData createGame(GameData game) {
     games.add(game);
     game.setGameId(games.size());
+    return game;
   }
 
   // Retrieve a specified game with the given game ID.
@@ -32,18 +35,19 @@ public class MemoryGameDataAccess implements GameDataAccess {
   }
 
   // Retrieve all games.
-  public GameData[] listGames() {
-    return games.toArray(new GameData[0]);
+  public Collection<GameData> listGames() {
+    return games;
   }
 
   // Updates a chess game. It should replace the chess game string corresponding
   // to a given gameID. This is used when players join a game or when a move is
   // made.
-  public void updateGame(int gameID, GameData game) throws DataAccessException {
+  public GameData updateGame(int gameID, GameData game) throws ResponseException {
     var index = getGameIndexFromID(gameID);
     if (index < 0 || index > games.size() - 1) {
-      throw new DataAccessException("game not found");
+      throw new ResponseException(404, "game not found");
     }
     games.set(index, game);
+    return game;
   }
 }

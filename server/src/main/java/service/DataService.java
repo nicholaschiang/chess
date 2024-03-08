@@ -1,5 +1,6 @@
 package service;
 
+import exception.ResponseException;
 import dataAccess.*;
 
 public class DataService {
@@ -14,7 +15,7 @@ public class DataService {
     this.gameDataAccess = gameDataAccess;
   }
 
-  public void clearData() {
+  public void clearData() throws ResponseException {
     userDataAccess.clear();
     authDataAccess.clear();
     gameDataAccess.clear();

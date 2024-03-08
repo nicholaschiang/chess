@@ -9,12 +9,21 @@ import spark.*;
 
 public class Server {
   private Gson gson = new Gson();
-  private UserDataAccess userDataAccess = new MemoryUserDataAccess();
-  private AuthDataAccess authDataAccess = new MemoryAuthDataAccess();
-  private GameDataAccess gameDataAccess = new MemoryGameDataAccess();
-  private UserService userService = new UserService(userDataAccess, authDataAccess);
-  private GameService gameService = new GameService(authDataAccess, gameDataAccess);
-  private DataService dataService = new DataService(userDataAccess, authDataAccess, gameDataAccess);
+  private UserDataAccess userDataAccess;
+  private AuthDataAccess authDataAccess;
+  private GameDataAccess gameDataAccess;
+  private UserService userService;
+  private GameService gameService;
+  private DataService dataService;
+
+  public Server() throws ResponseException {
+    userDataAccess = new SQLUserDataAccess();
+    authDataAccess = new SQLAuthDataAccess();
+    gameDataAccess = new SQLGameDataAccess();
+    userService = new UserService(userDataAccess, authDataAccess);
+    gameService = new GameService(authDataAccess, gameDataAccess);
+    dataService = new DataService(userDataAccess, authDataAccess, gameDataAccess);
+  }
 
   public int run(int desiredPort) {
     Spark.port(desiredPort);
@@ -32,6 +41,9 @@ public class Server {
           try {
             dataService.clearData();
             return "";
+          } catch (ResponseException e) {
+            response.status(e.getStatusCode());
+            return gson.toJson(new ErrorResponse(e.getMessage()));
           } catch (Exception e) {
             response.status(500);
             return gson.toJson(new ErrorResponse(e.getMessage()));

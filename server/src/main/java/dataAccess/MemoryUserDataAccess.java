@@ -13,8 +13,9 @@ public class MemoryUserDataAccess implements UserDataAccess {
   }
 
   // Create a new user.
-  public void createUser(UserData user) {
+  public UserData createUser(UserData user) {
     users.put(user.getUsername(), user);
+    return user;
   }
 
   // Retrieve a user with the given username.

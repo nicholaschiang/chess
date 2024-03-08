@@ -13,8 +13,9 @@ public class MemoryAuthDataAccess implements AuthDataAccess {
   }
 
   // Create a new authorization.
-  public void createAuth(AuthData auth) {
+  public AuthData createAuth(AuthData auth) {
     auths.put(auth.getAuthToken(), auth);
+    return auth;
   }
 
   // Retrieve an authorization given an authToken.

@@ -62,11 +62,7 @@ public class GameService {
     } else {
       throw new ResponseException(400, "invalid color");
     }
-    try {
-      gameDataAccess.updateGame(game.getGameId(), game);
-    } catch (DataAccessException e) {
-      throw new ResponseException(500, e.getMessage());
-    }
+    gameDataAccess.updateGame(game.getGameId(), game);
     return game;
   }
 }
