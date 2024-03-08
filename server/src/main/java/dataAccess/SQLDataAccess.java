@@ -42,6 +42,7 @@ abstract class SQLDataAccess {
           else if (param instanceof Integer p) ps.setInt(i + 1, p);
           else if (param == null) ps.setNull(i + 1, NULL);
         }
+        System.out.println("Executing: " + ps.toString());
         ps.executeUpdate();
 
         var rs = ps.getGeneratedKeys();

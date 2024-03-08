@@ -20,7 +20,7 @@ public class SQLGameDataAccess extends SQLDataAccess implements GameDataAccess {
       PRIMARY KEY (gameID),
       FOREIGN KEY (whiteUsername) REFERENCES user(username),
       FOREIGN KEY (blackUsername) REFERENCES user(username)
-    )
+    );
     """
   };
 
@@ -30,7 +30,7 @@ public class SQLGameDataAccess extends SQLDataAccess implements GameDataAccess {
 
   // Clears all games.
   public void clear() throws ResponseException {
-    var statement = "TRUNCATE game";
+    var statement = "DELETE FROM game";
     executeUpdate(statement);
   }
 

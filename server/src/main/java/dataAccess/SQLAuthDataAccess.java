@@ -21,7 +21,7 @@ public class SQLAuthDataAccess extends SQLDataAccess implements AuthDataAccess {
 
   // Clear all auths.
   public void clear() throws ResponseException {
-    var statement = "TRUNCATE auth";
+    var statement = "DELETE FROM auth";
     executeUpdate(statement);
   }
 

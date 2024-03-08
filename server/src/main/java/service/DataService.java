@@ -16,8 +16,9 @@ public class DataService {
   }
 
   public void clearData() throws ResponseException {
-    userDataAccess.clear();
+    System.out.println("Clearing data...");
     authDataAccess.clear();
     gameDataAccess.clear();
+    userDataAccess.clear();
   }
 }

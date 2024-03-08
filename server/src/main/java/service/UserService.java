@@ -15,11 +15,13 @@ public class UserService {
   }
 
   public AuthData registerUser(UserData user) throws ResponseException {
+    System.out.println("Registering user: "+ user.getUsername());
     if (user.getUsername() == null || user.getPassword() == null) {
       throw new ResponseException(400, "bad request");
     }
     UserData existingUser = userDataAccess.getUser(user.getUsername());
     if (existingUser != null) {
+      System.out.println("User already exists: " + user.getUsername());
       throw new ResponseException(403, "already taken");
     }
     userDataAccess.createUser(user);
@@ -30,6 +32,7 @@ public class UserService {
   }
 
   public AuthData loginUser(LoginRequest loginRequest) throws ResponseException {
+    System.out.println("Logging in user: "+ loginRequest.getUsername());
     UserData user = userDataAccess.getUser(loginRequest.getUsername());
     if (user == null || !user.getPassword().equals(loginRequest.getPassword())) {
       throw new ResponseException(401, "unauthorized");
@@ -41,6 +44,7 @@ public class UserService {
   }
 
   public void logoutUser(String authToken) throws ResponseException {
+    System.out.println("Logging out user: "+ authToken);
     if (authDataAccess.getAuth(authToken) == null) {
       throw new ResponseException(401, "unauthorized");
     }

@@ -16,13 +16,18 @@ public class Server {
   private GameService gameService;
   private DataService dataService;
 
-  public Server() throws ResponseException {
-    userDataAccess = new SQLUserDataAccess();
-    authDataAccess = new SQLAuthDataAccess();
-    gameDataAccess = new SQLGameDataAccess();
-    userService = new UserService(userDataAccess, authDataAccess);
-    gameService = new GameService(authDataAccess, gameDataAccess);
-    dataService = new DataService(userDataAccess, authDataAccess, gameDataAccess);
+  public Server() {
+    try {
+      userDataAccess = new SQLUserDataAccess();
+      authDataAccess = new SQLAuthDataAccess();
+      gameDataAccess = new SQLGameDataAccess();
+      userService = new UserService(userDataAccess, authDataAccess);
+      gameService = new GameService(authDataAccess, gameDataAccess);
+      dataService = new DataService(userDataAccess, authDataAccess, gameDataAccess);
+    } catch (Throwable ex) {
+      System.out.println("Failed to initialize server: " + ex.getMessage());
+      ex.printStackTrace();
+    }
   }
 
   public int run(int desiredPort) {
