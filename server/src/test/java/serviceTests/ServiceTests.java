@@ -14,7 +14,7 @@ abstract class ServiceTests {
       new DataService(userDataAccess, authDataAccess, gameDataAccess);
 
   @BeforeEach
-  public void setup() {
+  public void setup() throws Exception {
     userDataAccess.clear();
     authDataAccess.clear();
     gameDataAccess.clear();

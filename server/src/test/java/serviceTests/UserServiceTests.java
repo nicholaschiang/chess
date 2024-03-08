@@ -6,7 +6,6 @@ import exception.ResponseException;
 import model.*;
 import org.junit.jupiter.api.*;
 import server.*;
-import service.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserServiceTests extends ServiceTests {

@@ -8,14 +8,15 @@ import exception.ResponseException;
 import model.*;
 import org.junit.jupiter.api.*;
 import server.*;
-import service.*;
+import java.util.Collection;
+import java.util.List;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class GameServiceTests extends ServiceTests {
   private static GameData gameData = new GameData(1, null, null, "name", new ChessGame());
 
   @BeforeEach
-  public void setup() {
+  public void setup() throws Exception {
     super.setup();
     gameDataAccess.createGame(gameData);
   }
@@ -24,7 +25,7 @@ public class GameServiceTests extends ServiceTests {
   @Order(1)
   @DisplayName("List Games")
   public void listGames() throws Exception {
-    GameData[] games = {gameData};
+    Collection<GameData> games = List.of(gameData);
     ListGamesResponse expectedResponse = new ListGamesResponse(games);
 
     // Create a user.
@@ -34,8 +35,8 @@ public class GameServiceTests extends ServiceTests {
     // List games.
     ListGamesResponse response = gameService.listGames(authData.getAuthToken());
     assertEquals(
-        expectedResponse.getGames().length,
-        response.getGames().length,
+        expectedResponse.getGames().size(),
+        response.getGames().size(),
         "List games should return the expected response length");
   }
 
