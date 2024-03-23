@@ -31,11 +31,6 @@ public class ServerFacadeTests {
   }
 
   @Test
-  public void sampleTest() {
-    Assertions.assertTrue(true);
-  }
-
-  @Test
   public void registerUserSuccess() {
     var user = new UserData("johndoe", "password", "john.doe@example.com");
     var authData = serverFacade.registerUser(user);
