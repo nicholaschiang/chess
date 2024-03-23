@@ -9,6 +9,12 @@ compile: clean
 run: compile
 	java -jar server/target/server-jar-with-dependencies.jar
 
+start-server:
+	java -jar server/target/server-jar-with-dependencies.jar
+
+start-client:
+	java -jar client/target/client-jar-with-dependencies.jar http://localhost:$(server)
+
 format:
 	find . -name "*.java" -type f -print | xargs google-java-format --replace
 

@@ -45,7 +45,26 @@ public class ChessBoard {
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    for (ChessPiece[] row : board) {
+    for (var i = 0; i < 8; i++) {
+      ChessPiece[] row = board[i];
+      for (ChessPiece piece : row) {
+        if (piece == null) {
+          builder.append(" ");
+        } else {
+          builder.append(piece);
+        }
+        builder.append("|");
+      }
+      builder.append("\n");
+    }
+    return builder.toString();
+  }
+
+  // toString method that puts the white pieces on top.
+  public String toWhiteString() {
+    StringBuilder builder = new StringBuilder();
+    for (var i = 7; i >= 0; i--) {
+      ChessPiece[] row = board[i];
       for (ChessPiece piece : row) {
         if (piece == null) {
           builder.append(" ");

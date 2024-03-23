@@ -172,4 +172,8 @@ public class Server {
     Spark.stop();
     Spark.awaitStop();
   }
+
+  public void clear() throws ResponseException {
+    dataService.clearData();
+  }
 }
