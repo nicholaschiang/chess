@@ -8,7 +8,10 @@ import org.eclipse.jetty.websocket.api.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import service.*;
 import spark.Spark;
+import webSocketMessages.serverMessages.*;
+import webSocketMessages.userCommands.*;
 
+@WebSocket
 public class Server {
   private Gson gson = new Gson();
   private UserDataAccess userDataAccess;
@@ -35,7 +38,9 @@ public class Server {
   @OnWebSocketMessage
   public void onMessage(Session session, String message) throws Exception {
     System.out.printf("Received message: %s%n", message);
-    session.getRemote().sendString("WebSocket response: " + message);
+    var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+    var command = gson.fromJson(message, UserGameCommand.class);
+    session.getRemote().sendString(gson.toJson(notification));
   }
 
   public int run(int desiredPort) {

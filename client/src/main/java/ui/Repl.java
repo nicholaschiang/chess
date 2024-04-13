@@ -4,15 +4,34 @@ import chess.*;
 import java.util.Scanner;
 import model.*;
 import server.*;
+import webSocketMessages.serverMessages.*;
 
 public class Repl {
   private ServerFacade serverFacade;
   private AuthData authData;
+  private GameData gameData;
   private Scanner scanner;
 
   public Repl(String serverUrl) {
-    this.serverFacade = new ServerFacade(serverUrl);
+    this.serverFacade = new ServerFacade(serverUrl, this::onMessage);
     this.scanner = new Scanner(System.in);
+  }
+
+  public void onMessage(ServerMessage message) {
+    System.out.println("");
+    switch (message.getServerMessageType()) {
+      case LOAD_GAME:
+        this.gameData.setGame(((LoadGame) message).getChessGame());
+        printGameData();
+        break;
+      case ERROR:
+        System.err.println(((ServerError) message).getErrorMessage());
+        break;
+      case NOTIFICATION:
+        System.out.println(((Notification) message).getMessage());
+        break;
+    }
+    System.out.print("> ");
   }
 
   public void run() {
@@ -20,6 +39,7 @@ public class Repl {
     System.out.println("Listening at " + this.serverFacade.getServerUrl());
     System.out.println("Type 'help' for a list of commands.");
     while (true) {
+      if (gameData != null) printGameData();
       System.out.print("> ");
       var command = scanner.nextLine();
       switch (command) {
@@ -44,6 +64,20 @@ public class Repl {
         case "watch":
           joinObserver();
           break;
+        case "redraw":
+          break;
+        case "move":
+          makeMove();
+          break;
+        case "moves":
+          highlightLegalMoves();
+          break;
+        case "leave":
+          leaveGame();
+          break;
+        case "resign":
+          resignGame();
+          break;
         case "quit":
           quit();
           break;
@@ -61,12 +95,18 @@ public class Repl {
     if (authData == null) {
       System.out.println("  register - Create a new account");
       System.out.println("  login - Log in with an existing account");
-    } else {
+    } else if (gameData == null) {
       System.out.println("  logout - Log out of " + authData.getUsername());
       System.out.println("  games - List all games");
       System.out.println("  new - Start a new game");
       System.out.println("  join - Join a game");
       System.out.println("  watch - Join a game as an observer");
+    } else {
+      System.out.println("  redraw - Redraw the board");
+      System.out.println("  move - Make a move");
+      System.out.println("  moves - Highlight legal moves");
+      System.out.println("  leave - Leave the game");
+      System.out.println("  resign - Forfeit the game");
     }
     System.out.println("  quit - Exit the program");
     System.out.println("  help - Show this help message");
@@ -147,9 +187,8 @@ public class Repl {
     var playerColor = color.equals("white") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
     var request = new JoinGameRequest(playerColor, gameId);
     try {
-      var game = serverFacade.joinGame(authData.getAuthToken(), request);
-      System.out.printf("Joined game %d.\n", game.getGameId());
-      printGame(game.getGame());
+      gameData = serverFacade.joinGame(authData.getAuthToken(), request);
+      System.out.printf("Joined game %d.\n", gameData.getGameId());
     } catch (Exception e) {
       System.out.println("Join game failed. Please try again.");
       System.out.println("Detail: " + e.getMessage());
@@ -160,17 +199,75 @@ public class Repl {
     System.out.print("Enter the game ID you want to watch: ");
     var gameId = Integer.parseInt(scanner.nextLine());
     var request = new JoinGameRequest(null, gameId);
-    var game = serverFacade.joinGame(authData.getAuthToken(), request);
-    System.out.printf("Watching game %d.\n", game.getGameId());
-    printGame(game.getGame());
+    try {
+      gameData = serverFacade.joinGame(authData.getAuthToken(), request);
+      System.out.printf("Watching game %d.\n", gameData.getGameId());
+    } catch (Exception e) {
+      System.out.println("Join game failed. Please try again.");
+      System.out.println("Detail: " + e.getMessage());
+    }
   }
 
-  private static void printGame(ChessGame chessGame) {
+  private void makeMove() {
+    System.out.print("From: ");
+    var from = scanPosition();
+    System.out.print("To: ");
+    var to = scanPosition();
+    var move = new ChessMove(from, to);
+    try {
+      serverFacade.makeMove(authData.getAuthToken(), gameData.getGameId(), move);
+      System.out.println("Move successful.");
+    } catch (Exception e) {
+      System.out.println("Move failed. Please try again.");
+      System.out.println("Detail: " + e.getMessage());
+    }
+  }
+
+  private ChessPosition scanPosition() {
+    var position = scanner.nextLine();
+    var row = Integer.parseInt(position.split(",")[0]);
+    var col = Integer.parseInt(position.split(",")[1]);
+    return new ChessPosition(row, col);
+  }
+
+  private void highlightLegalMoves() {}
+
+  private void leaveGame() {
+    System.out.printf("Leaving game %d...\n", gameData.getGameId());
+    try {
+      serverFacade.leaveGame(authData.getAuthToken(), gameData.getGameId());
+      gameData = null;
+      System.out.println("Left game.");
+    } catch (Exception e) {
+      System.out.println("Leave game failed. Please try again.");
+      System.out.println("Detail: " + e.getMessage());
+    }
+  }
+
+  private void resignGame() {
+    System.out.printf("Resigning game %d...\n", gameData.getGameId());
+    try {
+      serverFacade.resignGame(authData.getAuthToken(), gameData.getGameId());
+      gameData = null;
+      System.out.println("Resigned game.");
+    } catch (Exception e) {
+      System.out.println("Resign game failed. Please try again.");
+      System.out.println("Detail: " + e.getMessage());
+    }
+  }
+
+  private void printGameData() {
+    var printWhiteOnBottom = gameData.getBlackUsername() != authData.getUsername();
+    printGame(gameData.getGame(), printWhiteOnBottom);
+  }
+
+  private static void printGame(ChessGame chessGame, boolean printWhiteOnBottom) {
     System.out.println("Per convention, capital letters indicate black pieces.");
     System.out.println("Similarly, lowercase letters indicate white pieces.");
-    System.out.println("Chess game with black on top:");
-    System.out.println(chessGame.getBoard().toString());
-    System.out.println("Chess game with white on top:");
-    System.out.println(chessGame.getBoard().toWhiteString());
+    if (printWhiteOnBottom) {
+      System.out.println(chessGame.getBoard().toString());
+    } else {
+      System.out.println(chessGame.getBoard().toWhiteString());
+    }
   }
 }

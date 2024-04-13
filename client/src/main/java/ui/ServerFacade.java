@@ -1,19 +1,25 @@
 package ui;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import java.io.*;
 import java.net.*;
+import java.util.function.Consumer;
 import javax.websocket.*;
 import model.*;
 import server.*;
+import webSocketMessages.serverMessages.*;
+import webSocketMessages.userCommands.*;
 
-public class ServerFacade {
+public class ServerFacade extends Endpoint {
   private final String serverUrl;
   private static final Gson gson = new Gson();
   private Session session;
+  private final Consumer<ServerMessage> onMessage;
 
-  public ServerFacade(String serverUrl) {
+  public ServerFacade(String serverUrl, Consumer<ServerMessage> onMessage) {
     this.serverUrl = serverUrl;
+    this.onMessage = onMessage;
   }
 
   public String getServerUrl() {
@@ -44,26 +50,45 @@ public class ServerFacade {
     return gson.fromJson(game, GameData.class);
   }
 
-  public GameData joinGame(String authToken, JoinGameRequest joinGameRequest) {
+  public GameData joinGame(String authToken, JoinGameRequest joinGameRequest) throws Exception {
     var game = fetch("PUT", "/game", gson.toJson(joinGameRequest), authToken);
-    return gson.fromJson(game, GameData.class);
+    var gameData = gson.fromJson(game, GameData.class);
+    this.connect();
+    return gameData;
+  }
+
+  public void leaveGame(String authToken, int gameId) throws Exception {
+    this.send(new Leave(authToken, gameId));
+  }
+
+  public void resignGame(String authToken, int gameId) throws Exception {
+    this.send(new Resign(authToken, gameId));
+  }
+
+  public void makeMove(String authToken, int gameId, ChessMove move) throws Exception {
+    this.send(new MakeMove(authToken, gameId, move));
   }
 
   private void connect() throws Exception {
-    URI uri = new URI("ws://" + this.serverUrl + "/connect");
-    WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-    this.session = container.connectToServer(this, uri);
-
-    this.session.addMessageHandler(
+    var uri = new URI(serverUrl.replace("http:", "ws:") + "/connect");
+    System.out.println("Connecting to " + uri);
+    var container = ContainerProvider.getWebSocketContainer();
+    session = container.connectToServer(this, uri);
+    session.addMessageHandler(
         new MessageHandler.Whole<String>() {
           public void onMessage(String message) {
-            System.out.println(message);
+            var serverMessage = gson.fromJson(message, ServerMessage.class);
+            onMessage.accept(serverMessage);
           }
         });
   }
 
-  private void send(String message) throws Exception {
-    this.session.getBasicRemote().sendText(message);
+  public void onOpen(Session session, EndpointConfig config) {
+    System.out.println("Connected to websocket server.");
+  }
+
+  private void send(UserGameCommand command) throws Exception {
+    session.getBasicRemote().sendText(gson.toJson(command));
   }
 
   private InputStreamReader fetch(String method, String path, String body, String authToken) {

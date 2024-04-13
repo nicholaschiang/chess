@@ -21,7 +21,7 @@ public class ServerMessage {
   }
 
   public ServerMessageType getServerMessageType() {
-    return this.serverMessageType;
+    return serverMessageType;
   }
 
   @Override
