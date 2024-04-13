@@ -45,7 +45,9 @@ public class UserDataAccessTests extends DataAccessTests {
     // Get a user.
     var fetchedUserData = userDataAccess.getUser(userData.getUsername());
     assertEquals(
-        userData.getUsername(), fetchedUserData.getUsername(), "Username should match the fetched user");
+        userData.getUsername(),
+        fetchedUserData.getUsername(),
+        "Username should match the fetched user");
   }
 
   @Test

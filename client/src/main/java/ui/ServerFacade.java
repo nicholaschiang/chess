@@ -3,12 +3,14 @@ package ui;
 import com.google.gson.Gson;
 import java.io.*;
 import java.net.*;
+import javax.websocket.*;
 import model.*;
 import server.*;
 
 public class ServerFacade {
   private final String serverUrl;
   private static final Gson gson = new Gson();
+  private Session session;
 
   public ServerFacade(String serverUrl) {
     this.serverUrl = serverUrl;
@@ -45,6 +47,23 @@ public class ServerFacade {
   public GameData joinGame(String authToken, JoinGameRequest joinGameRequest) {
     var game = fetch("PUT", "/game", gson.toJson(joinGameRequest), authToken);
     return gson.fromJson(game, GameData.class);
+  }
+
+  private void connect() throws Exception {
+    URI uri = new URI("ws://" + this.serverUrl + "/connect");
+    WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+    this.session = container.connectToServer(this, uri);
+
+    this.session.addMessageHandler(
+        new MessageHandler.Whole<String>() {
+          public void onMessage(String message) {
+            System.out.println(message);
+          }
+        });
+  }
+
+  private void send(String message) throws Exception {
+    this.session.getBasicRemote().sendText(message);
   }
 
   private InputStreamReader fetch(String method, String path, String body, String authToken) {

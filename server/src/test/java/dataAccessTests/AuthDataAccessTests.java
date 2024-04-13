@@ -4,13 +4,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import exception.ResponseException;
 import model.*;
-import service.AuthService;
 import org.junit.jupiter.api.*;
+import service.AuthService;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AuthDataAccessTests extends DataAccessTests {
   private static UserData userData = new UserData("john.doe", "password", "john.doe@example.com");
-  private static AuthData authData = new AuthData(userData.getUsername(), AuthService.generateNewToken());
+  private static AuthData authData =
+      new AuthData(userData.getUsername(), AuthService.generateNewToken());
 
   @BeforeEach
   public void setup() throws Exception {
@@ -36,7 +37,7 @@ public class AuthDataAccessTests extends DataAccessTests {
     assertThrows(
         ResponseException.class,
         () -> {
-authDataAccess.createAuth(newAuthData);
+          authDataAccess.createAuth(newAuthData);
         },
         "Create auth should throw an exception when the user does not exist");
   }
@@ -48,7 +49,9 @@ authDataAccess.createAuth(newAuthData);
     // Get an auth.
     var fetchedAuthData = authDataAccess.getAuth(authData.getAuthToken());
     assertEquals(
-        authData.getAuthToken(), fetchedAuthData.getAuthToken(), "Auth token should match the fetched auth");
+        authData.getAuthToken(),
+        fetchedAuthData.getAuthToken(),
+        "Auth token should match the fetched auth");
   }
 
   @Test

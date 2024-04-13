@@ -3,12 +3,12 @@ package dataAccessTests;
 import static org.junit.jupiter.api.Assertions.*;
 
 import chess.*;
+import dataAccess.DatabaseManager;
 import exception.ResponseException;
 import java.util.Collection;
 import java.util.List;
 import model.*;
 import org.junit.jupiter.api.*;
-import dataAccess.DatabaseManager;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class GameDataAccessTests extends DataAccessTests {
@@ -86,9 +86,7 @@ public class GameDataAccessTests extends DataAccessTests {
   public void getGame() throws Exception {
     var fetchedGameData = gameDataAccess.getGame(gameData.getGameId());
     assertEquals(
-        gameData.getGame(),
-        fetchedGameData.getGame(),
-        "Game should exist in our database");
+        gameData.getGame(), fetchedGameData.getGame(), "Game should exist in our database");
   }
 
   @Test

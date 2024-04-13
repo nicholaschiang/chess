@@ -1,8 +1,8 @@
 package dataAccess;
 
 import exception.ResponseException;
-import model.GameData;
 import java.util.Collection;
+import model.GameData;
 
 public interface GameDataAccess extends DataAccess {
   // Create a new game.

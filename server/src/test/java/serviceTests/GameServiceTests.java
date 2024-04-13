@@ -5,11 +5,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import chess.ChessGame;
 import chess.ChessGame.TeamColor;
 import exception.ResponseException;
+import java.util.Collection;
+import java.util.List;
 import model.*;
 import org.junit.jupiter.api.*;
 import server.*;
-import java.util.Collection;
-import java.util.List;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class GameServiceTests extends ServiceTests {

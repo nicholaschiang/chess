@@ -1,8 +1,8 @@
 package dataAccess;
 
 import exception.ResponseException;
-import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Collection;
 import model.GameData;
 
 public class MemoryGameDataAccess implements GameDataAccess {

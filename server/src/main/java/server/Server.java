@@ -4,8 +4,10 @@ import com.google.gson.Gson;
 import dataAccess.*;
 import exception.ResponseException;
 import model.*;
+import org.eclipse.jetty.websocket.api.*;
+import org.eclipse.jetty.websocket.api.annotations.*;
 import service.*;
-import spark.*;
+import spark.Spark;
 
 public class Server {
   private Gson gson = new Gson();
@@ -30,6 +32,12 @@ public class Server {
     }
   }
 
+  @OnWebSocketMessage
+  public void onMessage(Session session, String message) throws Exception {
+    System.out.printf("Received message: %s%n", message);
+    session.getRemote().sendString("WebSocket response: " + message);
+  }
+
   public int run(int desiredPort) {
     Spark.port(desiredPort);
 
@@ -38,6 +46,9 @@ public class Server {
     // Register endpoints. I have so few that I can put them all here. If this
     // becomes unwieldy, I'll move them to their own classes.
     // https://github.com/softwareconstruction240/softwareconstruction/blob/main/chess/3-web-api/web-api.md#endpoint-specifications
+
+    // Opens a websocket connection.
+    Spark.webSocket("/connect", Server.class);
 
     // Clears the database. Removes all users, games, and authTokens.
     Spark.delete(
