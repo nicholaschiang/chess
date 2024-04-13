@@ -56,16 +56,19 @@ public class SQLGameDataAccess extends SQLDataAccess implements GameDataAccess {
     var statement =
         "UPDATE game SET whiteUsername = ?, blackUsername = ?, gameName = ?, json = ? WHERE gameID"
             + " = ?";
-    var id =
-        executeUpdate(
-            statement,
-            game.getWhiteUsername(),
-            game.getBlackUsername(),
-            game.getGameName(),
-            new Gson().toJson(game.getGame()),
-            gameID);
+    executeUpdate(
+        statement,
+        game.getWhiteUsername(),
+        game.getBlackUsername(),
+        game.getGameName(),
+        new Gson().toJson(game.getGame()),
+        gameID);
     return new GameData(
-        id, game.getWhiteUsername(), game.getBlackUsername(), game.getGameName(), game.getGame());
+        gameID,
+        game.getWhiteUsername(),
+        game.getBlackUsername(),
+        game.getGameName(),
+        game.getGame());
   }
 
   // Retrieve a specified game with the given game ID.

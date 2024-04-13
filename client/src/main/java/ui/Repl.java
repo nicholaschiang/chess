@@ -1,12 +1,14 @@
 package ui;
 
 import chess.*;
+import com.google.gson.Gson;
 import java.util.Scanner;
 import model.*;
 import server.*;
 import webSocketMessages.serverMessages.*;
 
 public class Repl {
+  private static final Gson gson = new Gson();
   private ServerFacade serverFacade;
   private AuthData authData;
   private GameData gameData;
@@ -17,19 +19,29 @@ public class Repl {
     this.scanner = new Scanner(System.in);
   }
 
-  public void onMessage(ServerMessage message) {
+  public void onMessage(String message) {
     System.out.println("");
-    switch (message.getServerMessageType()) {
+    var serverMessage = gson.fromJson(message, ServerMessage.class);
+    switch (serverMessage.getServerMessageType()) {
       case LOAD_GAME:
-        this.gameData.setGame(((LoadGame) message).getChessGame());
-        printGameData();
-        break;
+        {
+          var load = gson.fromJson(message, LoadGame.class);
+          gameData.setGame(load.getChessGame());
+          printGameData();
+          break;
+        }
       case ERROR:
-        System.err.println(((ServerError) message).getErrorMessage());
-        break;
+        {
+          var error = gson.fromJson(message, ServerError.class);
+          System.err.println(error.getErrorMessage());
+          break;
+        }
       case NOTIFICATION:
-        System.out.println(((Notification) message).getMessage());
-        break;
+        {
+          var notification = gson.fromJson(message, Notification.class);
+          System.out.println(notification.getMessage());
+          break;
+        }
     }
     System.out.print("> ");
   }
@@ -216,7 +228,6 @@ public class Repl {
     var move = new ChessMove(from, to);
     try {
       serverFacade.makeMove(authData.getAuthToken(), gameData.getGameId(), move);
-      System.out.println("Move successful.");
     } catch (Exception e) {
       System.out.println("Move failed. Please try again.");
       System.out.println("Detail: " + e.getMessage());
@@ -237,7 +248,6 @@ public class Repl {
     try {
       serverFacade.leaveGame(authData.getAuthToken(), gameData.getGameId());
       gameData = null;
-      System.out.println("Left game.");
     } catch (Exception e) {
       System.out.println("Leave game failed. Please try again.");
       System.out.println("Detail: " + e.getMessage());
@@ -249,7 +259,6 @@ public class Repl {
     try {
       serverFacade.resignGame(authData.getAuthToken(), gameData.getGameId());
       gameData = null;
-      System.out.println("Resigned game.");
     } catch (Exception e) {
       System.out.println("Resign game failed. Please try again.");
       System.out.println("Detail: " + e.getMessage());

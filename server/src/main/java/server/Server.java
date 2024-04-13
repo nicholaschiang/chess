@@ -1,8 +1,10 @@
 package server;
 
+import chess.ChessGame.TeamColor;
 import com.google.gson.Gson;
 import dataAccess.*;
 import exception.ResponseException;
+import java.util.HashMap;
 import model.*;
 import org.eclipse.jetty.websocket.api.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
@@ -13,13 +15,16 @@ import webSocketMessages.userCommands.*;
 
 @WebSocket
 public class Server {
-  private Gson gson = new Gson();
+  private static final Gson gson = new Gson();
   private UserDataAccess userDataAccess;
   private AuthDataAccess authDataAccess;
   private GameDataAccess gameDataAccess;
   private UserService userService;
   private GameService gameService;
   private DataService dataService;
+
+  // Track all connected sessions by gameId.
+  private HashMap<Integer, Session> sessions = new HashMap<Integer, Session>();
 
   public Server() {
     try {
@@ -38,9 +43,128 @@ public class Server {
   @OnWebSocketMessage
   public void onMessage(Session session, String message) throws Exception {
     System.out.printf("Received message: %s%n", message);
-    var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
     var command = gson.fromJson(message, UserGameCommand.class);
-    session.getRemote().sendString(gson.toJson(notification));
+    try {
+      var authData = authDataAccess.getAuth(command.getAuthString());
+      switch (command.getCommandType()) {
+        case JOIN_OBSERVER:
+          {
+            var join = gson.fromJson(message, JoinObserver.class);
+            var gameData = gameDataAccess.getGame(join.getGameId());
+            var notification = authData.getUsername() + " is now observing your game.";
+            sessions.put(join.getGameId(), session);
+            send(session, new LoadGame(gameData.getGame()));
+            sendToOthers(session, gameData.getGameId(), new Notification(notification));
+            break;
+          }
+        case JOIN_PLAYER:
+          {
+            var join = gson.fromJson(message, JoinPlayer.class);
+            var gameData = gameDataAccess.getGame(join.getGameId());
+
+            var notification = "";
+            if (join.getPlayerColor() == TeamColor.WHITE) {
+              notification += gameData.getWhiteUsername();
+              notification += " has joined the game playing white!";
+            } else {
+              notification += gameData.getBlackUsername();
+              notification += " has joined the game playing black!";
+            }
+
+            sessions.put(join.getGameId(), session);
+            send(session, new LoadGame(gameData.getGame()));
+            sendToOthers(session, gameData.getGameId(), new Notification(notification));
+            break;
+          }
+        case MAKE_MOVE:
+          {
+            var move = gson.fromJson(message, MakeMove.class);
+            var gameData = gameDataAccess.getGame(move.getGameId());
+            var game = gameData.getGame();
+
+            var notification =
+                String.format(
+                    "%s moved their %s from %s to %s.",
+                    authData.getUsername(),
+                    game.getBoard().getPiece(move.getMove().getStartPosition()),
+                    move.getMove().getStartPosition(),
+                    move.getMove().getEndPosition());
+
+            game.makeMove(move.getMove());
+            gameData.setGame(game);
+            gameDataAccess.updateGame(gameData.getGameId(), gameData);
+            sendToAll(move.getGameId(), new LoadGame(game));
+            sendToOthers(session, move.getGameId(), new Notification(notification));
+            break;
+          }
+        case LEAVE:
+          {
+            var leave = gson.fromJson(message, Leave.class);
+            var gameData = gameDataAccess.getGame(leave.getGameId());
+            if (gameData.getBlackUsername() == authData.getUsername()) {
+              gameData.setBlackUsername(null);
+            } else if (gameData.getWhiteUsername() == authData.getUsername()) {
+              gameData.setWhiteUsername(null);
+            }
+            var notification = authData.getUsername() + " has left the game.";
+            gameDataAccess.updateGame(gameData.getGameId(), gameData);
+            sessions.remove(leave.getGameId());
+            sendToOthers(session, leave.getGameId(), new Notification(notification));
+            break;
+          }
+        case RESIGN:
+          {
+            var resign = gson.fromJson(message, Resign.class);
+
+            // TODO Add a flag to the game to indicate that a user has resigned.
+            // - blackHasResigned (boolean)
+            // - whiteHasResigned (boolean)
+            // If a user has resigned, do not allow any more moves.
+
+            var notification = authData.getUsername() + " has forfeited.";
+            sendToAll(resign.getGameId(), new Notification(notification));
+            break;
+          }
+      }
+    } catch (Exception e) {
+      var errorMessage =
+          String.format("Command %s failed: %s", command.getCommandType(), e.getMessage());
+      System.err.println(errorMessage);
+      System.err.println(e.getStackTrace());
+      send(session, new ServerError(errorMessage));
+    }
+  }
+
+  public void send(Session session, ServerMessage message) throws Exception {
+    session.getRemote().sendString(gson.toJson(message));
+  }
+
+  public void sendToAll(int gameId, ServerMessage message) throws Exception {
+    sessions.forEach(
+        (id, session) -> {
+          if (id == gameId) {
+            try {
+              send(session, message);
+            } catch (Exception e) {
+              System.err.println("Failed to send message to session: " + e.getMessage());
+              System.err.println(e.getStackTrace());
+            }
+          }
+        });
+  }
+
+  public void sendToOthers(Session skip, int gameId, ServerMessage message) throws Exception {
+    sessions.forEach(
+        (id, session) -> {
+          if (id == gameId && session != skip) {
+            try {
+              send(session, message);
+            } catch (Exception e) {
+              System.err.println("Failed to send message to session: " + e.getMessage());
+              System.err.println(e.getStackTrace());
+            }
+          }
+        });
   }
 
   public int run(int desiredPort) {

@@ -8,16 +8,15 @@ import java.util.function.Consumer;
 import javax.websocket.*;
 import model.*;
 import server.*;
-import webSocketMessages.serverMessages.*;
 import webSocketMessages.userCommands.*;
 
 public class ServerFacade extends Endpoint {
-  private final String serverUrl;
   private static final Gson gson = new Gson();
+  private final String serverUrl;
   private Session session;
-  private final Consumer<ServerMessage> onMessage;
+  private final Consumer<String> onMessage;
 
-  public ServerFacade(String serverUrl, Consumer<ServerMessage> onMessage) {
+  public ServerFacade(String serverUrl, Consumer<String> onMessage) {
     this.serverUrl = serverUrl;
     this.onMessage = onMessage;
   }
@@ -54,6 +53,12 @@ public class ServerFacade extends Endpoint {
     var game = fetch("PUT", "/game", gson.toJson(joinGameRequest), authToken);
     var gameData = gson.fromJson(game, GameData.class);
     this.connect();
+    if (joinGameRequest.getPlayerColor() == null) {
+      this.send(new JoinObserver(authToken, gameData.getGameId()));
+    } else {
+      this.send(new JoinPlayer(authToken, gameData.getGameId(), joinGameRequest.getPlayerColor()));
+    }
+    System.out.println("Joined game: " + gameData.getGameId());
     return gameData;
   }
 
@@ -77,8 +82,7 @@ public class ServerFacade extends Endpoint {
     session.addMessageHandler(
         new MessageHandler.Whole<String>() {
           public void onMessage(String message) {
-            var serverMessage = gson.fromJson(message, ServerMessage.class);
-            onMessage.accept(serverMessage);
+            onMessage.accept(message);
           }
         });
   }
@@ -88,7 +92,9 @@ public class ServerFacade extends Endpoint {
   }
 
   private void send(UserGameCommand command) throws Exception {
-    session.getBasicRemote().sendText(gson.toJson(command));
+    var json = gson.toJson(command);
+    System.out.println("Sending command: " + json);
+    session.getBasicRemote().sendText(json);
   }
 
   private InputStreamReader fetch(String method, String path, String body, String authToken) {
