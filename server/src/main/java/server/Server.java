@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import dataAccess.*;
 import exception.ResponseException;
 import java.util.HashMap;
+import java.util.HashSet;
 import model.*;
 import org.eclipse.jetty.websocket.api.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
@@ -24,7 +25,7 @@ public class Server {
   private DataService dataService;
 
   // Track all connected sessions by gameId.
-  private HashMap<Integer, Session> sessions = new HashMap<Integer, Session>();
+  private HashMap<Integer, HashSet<Session>> sessions = new HashMap<Integer, HashSet<Session>>();
 
   public Server() {
     try {
@@ -52,8 +53,8 @@ public class Server {
             var join = gson.fromJson(message, JoinObserver.class);
             var gameData = gameDataAccess.getGame(join.getGameId());
             var notification = authData.getUsername() + " is now observing your game.";
-            sessions.put(join.getGameId(), session);
-            send(session, new LoadGame(gameData.getGame()));
+            addSession(gameData.getGameId(), session);
+            send(session, new LoadGame(gameData));
             sendToOthers(session, gameData.getGameId(), new Notification(notification));
             break;
           }
@@ -71,8 +72,8 @@ public class Server {
               notification += " has joined the game playing black!";
             }
 
-            sessions.put(join.getGameId(), session);
-            send(session, new LoadGame(gameData.getGame()));
+            addSession(gameData.getGameId(), session);
+            send(session, new LoadGame(gameData));
             sendToOthers(session, gameData.getGameId(), new Notification(notification));
             break;
           }
@@ -93,7 +94,7 @@ public class Server {
             game.makeMove(move.getMove());
             gameData.setGame(game);
             gameDataAccess.updateGame(gameData.getGameId(), gameData);
-            sendToAll(move.getGameId(), new LoadGame(game));
+            sendToAll(move.getGameId(), new LoadGame(gameData));
             sendToOthers(session, move.getGameId(), new Notification(notification));
             break;
           }
@@ -108,7 +109,7 @@ public class Server {
             }
             var notification = authData.getUsername() + " has left the game.";
             gameDataAccess.updateGame(gameData.getGameId(), gameData);
-            sessions.remove(leave.getGameId());
+            removeSession(leave.getGameId(), session);
             sendToOthers(session, leave.getGameId(), new Notification(notification));
             break;
           }
@@ -135,36 +136,47 @@ public class Server {
     }
   }
 
-  public void send(Session session, ServerMessage message) throws Exception {
+  private void addSession(int gameId, Session session) {
+    if (!sessions.containsKey(gameId)) sessions.put(gameId, new HashSet<Session>());
+    sessions.get(gameId).add(session);
+  }
+
+  private void removeSession(int gameId, Session session) {
+    if (sessions.containsKey(gameId)) sessions.get(gameId).remove(session);
+  }
+
+  private void send(Session session, ServerMessage message) throws Exception {
     session.getRemote().sendString(gson.toJson(message));
   }
 
-  public void sendToAll(int gameId, ServerMessage message) throws Exception {
-    sessions.forEach(
-        (id, session) -> {
-          if (id == gameId) {
-            try {
-              send(session, message);
-            } catch (Exception e) {
-              System.err.println("Failed to send message to session: " + e.getMessage());
-              System.err.println(e.getStackTrace());
-            }
-          }
-        });
+  private void sendToAll(int gameId, ServerMessage message) throws Exception {
+    sessions
+        .get(gameId)
+        .forEach(
+            (session) -> {
+              try {
+                send(session, message);
+              } catch (Exception e) {
+                System.err.println("Failed to send message to session: " + e.getMessage());
+                System.err.println(e.getStackTrace());
+              }
+            });
   }
 
-  public void sendToOthers(Session skip, int gameId, ServerMessage message) throws Exception {
-    sessions.forEach(
-        (id, session) -> {
-          if (id == gameId && session != skip) {
-            try {
-              send(session, message);
-            } catch (Exception e) {
-              System.err.println("Failed to send message to session: " + e.getMessage());
-              System.err.println(e.getStackTrace());
-            }
-          }
-        });
+  private void sendToOthers(Session skip, int gameId, ServerMessage message) throws Exception {
+    sessions
+        .get(gameId)
+        .forEach(
+            (session) -> {
+              if (session != skip) {
+                try {
+                  send(session, message);
+                } catch (Exception e) {
+                  System.err.println("Failed to send message to session: " + e.getMessage());
+                  System.err.println(e.getStackTrace());
+                }
+              }
+            });
   }
 
   public int run(int desiredPort) {

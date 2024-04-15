@@ -29,7 +29,7 @@ public class Repl {
       case LOAD_GAME:
         {
           var load = gson.fromJson(message, LoadGame.class);
-          gameData.setGame(load.getChessGame());
+          gameData = load.getGameData();
           printGameData();
           break;
         }
@@ -289,10 +289,14 @@ public class Repl {
   }
 
   private void printGameData() {
+    System.out.println("Current user: " + authData.getUsername());
     System.out.println(
         String.format(
-            "Current game: %s (black) v.s. %s (white)",
-            gameData.getBlackUsername(), gameData.getWhiteUsername()));
+            "Current game: '%s' (%d) %s (black) v.s. %s (white)",
+            gameData.getGameName(),
+            gameData.getGameId(),
+            gameData.getBlackUsername(),
+            gameData.getWhiteUsername()));
     var turn =
         gameData.getGame().getTeamTurn() == ChessGame.TeamColor.BLACK
             ? gameData.getBlackUsername()
