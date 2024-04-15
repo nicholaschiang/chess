@@ -8,6 +8,10 @@ package chess;
 public class ChessBoard {
   private ChessPiece[][] board;
 
+  public ChessPiece[][] getBoard() {
+    return board;
+  }
+
   @Override
   public boolean equals(Object other) {
     if (other instanceof ChessBoard) {

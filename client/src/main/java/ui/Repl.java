@@ -2,6 +2,9 @@ package ui;
 
 import chess.*;
 import com.google.gson.Gson;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Scanner;
 import model.*;
 import server.*;
@@ -221,9 +224,9 @@ public class Repl {
   }
 
   private void makeMove() {
-    System.out.print("From: ");
+    System.out.print("From (row, col): ");
     var from = scanPosition();
-    System.out.print("To: ");
+    System.out.print("To (row, col): ");
     var to = scanPosition();
     var move = new ChessMove(from, to);
     try {
@@ -241,7 +244,23 @@ public class Repl {
     return new ChessPosition(row, col);
   }
 
-  private void highlightLegalMoves() {}
+  private void highlightLegalMoves() {
+    System.out.print("From (row, col): ");
+    var from = scanPosition();
+    if (gameData.getGame().getBoard().getPiece(from) == null) {
+      System.out.println("No piece at that position.");
+      return;
+    }
+    var legalMoves = gameData.getGame().validMoves(from);
+    var highlightPositions = new HashSet<ChessPosition>();
+    System.out.print("Possible moves: ");
+    for (var move : legalMoves) {
+      System.out.print(move.getEndPosition() + " ");
+      highlightPositions.add(move.getEndPosition());
+    }
+    System.out.println();
+    printGame(gameData.getGame(), isPlayingBlack(), highlightPositions, from);
+  }
 
   private void leaveGame() {
     System.out.printf("Leaving game %d...\n", gameData.getGameId());
@@ -265,18 +284,132 @@ public class Repl {
     }
   }
 
-  private void printGameData() {
-    var printWhiteOnBottom = gameData.getBlackUsername() != authData.getUsername();
-    printGame(gameData.getGame(), printWhiteOnBottom);
+  private boolean isPlayingBlack() {
+    return authData.getUsername().equals(gameData.getBlackUsername());
   }
 
-  private static void printGame(ChessGame chessGame, boolean printWhiteOnBottom) {
-    System.out.println("Per convention, capital letters indicate black pieces.");
-    System.out.println("Similarly, lowercase letters indicate white pieces.");
-    if (printWhiteOnBottom) {
-      System.out.println(chessGame.getBoard().toString());
+  private void printGameData() {
+    System.out.println(
+        String.format(
+            "Current game: %s (black) v.s. %s (white)",
+            gameData.getBlackUsername(), gameData.getWhiteUsername()));
+    var turn =
+        gameData.getGame().getTeamTurn() == ChessGame.TeamColor.BLACK
+            ? gameData.getBlackUsername()
+            : gameData.getWhiteUsername();
+    var status = String.format("It is %s's turn.", turn);
+    if (authData.getUsername().equals(turn)) {
+      status += " Please make your move.";
     } else {
-      System.out.println(chessGame.getBoard().toWhiteString());
+      status += " Waiting for your opponent's move...";
     }
+    System.out.println(status);
+    System.out.println();
+    printGame(gameData.getGame(), isPlayingBlack());
   }
+
+  private static void printGame(ChessGame chessGame, boolean printBlackOnBottom) {
+    var highlightPositions = new HashSet<ChessPosition>();
+    System.out.println(getGameString(chessGame, printBlackOnBottom, highlightPositions, null));
+  }
+
+  private static void printGame(
+      ChessGame chessGame,
+      boolean printBlackOnBottom,
+      Collection<ChessPosition> highlightPositions,
+      ChessPosition selectedPosition) {
+    System.out.println(
+        getGameString(chessGame, printBlackOnBottom, highlightPositions, selectedPosition));
+  }
+
+  private static String getGameString(
+      ChessGame chessGame,
+      boolean printBlackOnBottom,
+      Collection<ChessPosition> highlightPositions,
+      ChessPosition selectedPosition) {
+    var builder = new StringBuilder();
+    if (printBlackOnBottom) {
+      for (var row = 1; row <= 8; row++) {
+        if (row == 1) appendIndicesRow(builder, row);
+        appendRow(builder, chessGame, highlightPositions, selectedPosition, row);
+        if (row == 8) appendIndicesRow(builder, row);
+      }
+    } else {
+      for (var row = 8; row >= 1; row--) {
+        if (row == 8) appendIndicesRow(builder, row);
+        appendRow(builder, chessGame, highlightPositions, selectedPosition, row);
+        if (row == 1) appendIndicesRow(builder, row);
+      }
+    }
+    builder.append(EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR);
+    return builder.toString();
+  }
+
+  private static void appendRow(
+      StringBuilder builder,
+      ChessGame chessGame,
+      Collection<ChessPosition> highlightPositions,
+      ChessPosition selectedPosition,
+      int row) {
+    for (var col = 1; col <= 8; col++) {
+      var rowSymbol = EscapeSequences.RESET_BG_COLOR + " " + row + " ";
+      if (col == 1) builder.append(rowSymbol);
+      var position = new ChessPosition(row, col);
+      var piece = chessGame.getBoard().getPiece(position);
+      var symbol = "";
+      if (highlightPositions.contains(position)) {
+        symbol +=
+            row % 2 == col % 2
+                ? EscapeSequences.SET_BG_COLOR_GREEN
+                : EscapeSequences.SET_BG_COLOR_DARK_GREEN;
+      } else if (selectedPosition != null && selectedPosition.equals(position)) {
+        symbol += EscapeSequences.SET_BG_COLOR_YELLOW;
+      } else {
+        symbol +=
+            row % 2 == col % 2
+                ? EscapeSequences.SET_BG_COLOR_WHITE
+                : EscapeSequences.SET_BG_COLOR_BLACK;
+      }
+      if (piece == null) {
+        symbol += EscapeSequences.EMPTY;
+      } else {
+        symbol +=
+            piece.getTeamColor() == ChessGame.TeamColor.BLACK
+                ? blackPieces.get(piece.getPieceType())
+                : whitePieces.get(piece.getPieceType());
+      }
+      builder.append(symbol);
+      if (col == 8) builder.append(rowSymbol);
+    }
+    builder.append(EscapeSequences.RESET_BG_COLOR + "\n");
+  }
+
+  private static void appendIndicesRow(StringBuilder builder, int row) {
+    builder.append(EscapeSequences.RESET_BG_COLOR);
+    builder.append(EscapeSequences.EMPTY);
+    for (var col = 1; col <= 8; col++) {
+      var colSymbol = " " + col + " ";
+      builder.append(colSymbol);
+    }
+    builder.append(EscapeSequences.EMPTY);
+    builder.append("\n");
+  }
+
+  private static final Map<ChessPiece.PieceType, String> blackPieces =
+      Map.of(
+          ChessPiece.PieceType.PAWN, EscapeSequences.BLACK_PAWN,
+          ChessPiece.PieceType.KNIGHT, EscapeSequences.BLACK_KNIGHT,
+          ChessPiece.PieceType.ROOK, EscapeSequences.BLACK_ROOK,
+          ChessPiece.PieceType.QUEEN, EscapeSequences.BLACK_QUEEN,
+          ChessPiece.PieceType.KING, EscapeSequences.BLACK_KING,
+          ChessPiece.PieceType.BISHOP, EscapeSequences.BLACK_BISHOP);
+
+  private static final Map<ChessPiece.PieceType, String> whitePieces =
+      Map.of(
+          ChessPiece.PieceType.PAWN, EscapeSequences.WHITE_PAWN,
+          ChessPiece.PieceType.KNIGHT, EscapeSequences.WHITE_KNIGHT,
+          ChessPiece.PieceType.ROOK, EscapeSequences.WHITE_ROOK,
+          ChessPiece.PieceType.QUEEN, EscapeSequences.WHITE_QUEEN,
+          ChessPiece.PieceType.KING, EscapeSequences.WHITE_KING,
+          ChessPiece.PieceType.BISHOP, EscapeSequences.WHITE_BISHOP);
 }
