@@ -12,6 +12,9 @@ public class ChessGame {
   private ChessBoard board;
   private TeamColor teamTurn;
 
+  // The team that forfeited the game. Null if no team has forfeited.
+  private TeamColor resigned;
+
   @Override
   public boolean equals(Object other) {
     if (other instanceof ChessGame) {
@@ -37,6 +40,14 @@ public class ChessGame {
   public ChessGame(ChessBoard board, TeamColor teamTurn) {
     this.board = new ChessBoard(board);
     this.teamTurn = teamTurn;
+  }
+
+  public TeamColor getResigned() {
+    return resigned;
+  }
+
+  public void setResigned(TeamColor resigned) {
+    this.resigned = resigned;
   }
 
   /**
@@ -90,6 +101,10 @@ public class ChessGame {
    * @throws InvalidMoveException if move is invalid
    */
   public void makeMove(ChessMove move) throws InvalidMoveException {
+    // A move is illegal if the game has been resigned.
+    if (resigned != null)
+      throw new InvalidMoveException("The game has been resigned. No moves can be made.");
+
     // A move is illegal if it’s not the corresponding team's turn.
     if (board.getPiece(move.getStartPosition()).getTeamColor() != teamTurn)
       throw new InvalidMoveException("It is not your turn.");

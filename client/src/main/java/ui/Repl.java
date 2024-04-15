@@ -297,15 +297,21 @@ public class Repl {
             gameData.getGameId(),
             gameData.getBlackUsername(),
             gameData.getWhiteUsername()));
-    var turn =
+    var turnUsername =
         gameData.getGame().getTeamTurn() == ChessGame.TeamColor.BLACK
             ? gameData.getBlackUsername()
             : gameData.getWhiteUsername();
-    var status = String.format("It is %s's turn.", turn);
-    if (authData.getUsername().equals(turn)) {
-      status += " Please make your move.";
+    var waitingUsername =
+        gameData.getGame().getTeamTurn() == ChessGame.TeamColor.BLACK
+            ? gameData.getWhiteUsername()
+            : gameData.getBlackUsername();
+    var status = "";
+    if (authData.getUsername().equals(turnUsername)) {
+      status += "It is your turn. Please make your move.";
+    } else if (authData.getUsername().equals(waitingUsername)) {
+      status += "It is your opponent's turn. Waiting for their move...";
     } else {
-      status += " Waiting for your opponent's move...";
+      status += "It is " + turnUsername + "'s turn. Waiting for their move...";
     }
     System.out.println(status);
     System.out.println();

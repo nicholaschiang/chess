@@ -116,14 +116,13 @@ public class Server {
         case RESIGN:
           {
             var resign = gson.fromJson(message, Resign.class);
-
-            // TODO Add a flag to the game to indicate that a user has resigned.
-            // - blackHasResigned (boolean)
-            // - whiteHasResigned (boolean)
-            // If a user has resigned, do not allow any more moves.
-
-            var notification = authData.getUsername() + " has forfeited.";
+            var gameData = gameDataAccess.getGame(resign.getGameId());
+            var isWhite = authData.getUsername().equals(gameData.getWhiteUsername());
+            gameData.getGame().setResigned(isWhite ? TeamColor.WHITE : TeamColor.BLACK);
+            gameDataAccess.updateGame(gameData.getGameId(), gameData);
+            var notification = authData.getUsername() + " has forfeited the game.";
             sendToAll(resign.getGameId(), new Notification(notification));
+            removeSession(resign.getGameId(), session);
             break;
           }
       }
