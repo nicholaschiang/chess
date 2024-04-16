@@ -63,6 +63,17 @@ public class Server {
             var join = gson.fromJson(message, JoinPlayer.class);
             var gameData = gameDataAccess.getGame(join.getGameId());
 
+            // Check that the game aligns with the join request.
+            if (join.getPlayerColor() == TeamColor.WHITE) {
+              if (!authData.getUsername().equals(gameData.getWhiteUsername())) {
+                throw new Exception("You are not the white player in this game.");
+              }
+            } else if (join.getPlayerColor() == TeamColor.BLACK) {
+              if (!authData.getUsername().equals(gameData.getBlackUsername())) {
+                throw new Exception("You are not the black player in this game.");
+              }
+            }
+
             var notification = "";
             if (join.getPlayerColor() == TeamColor.WHITE) {
               notification += gameData.getWhiteUsername();
@@ -92,7 +103,6 @@ public class Server {
                     move.getMove().getEndPosition());
 
             game.makeMove(move.getMove());
-            gameData.setGame(game);
             gameDataAccess.updateGame(gameData.getGameId(), gameData);
             sendToAll(move.getGameId(), new LoadGame(gameData));
             sendToOthers(session, move.getGameId(), new Notification(notification));
@@ -167,7 +177,9 @@ public class Server {
         .get(gameID)
         .forEach(
             (session) -> {
-              if (session != skip) {
+              if (session.equals(skip)) {
+                System.out.println("Skipping current session...");
+              } else {
                 try {
                   send(session, message);
                 } catch (Exception e) {
