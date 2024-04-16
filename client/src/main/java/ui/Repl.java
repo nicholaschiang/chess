@@ -196,11 +196,11 @@ public class Repl {
 
   private void joinGame() {
     System.out.print("Enter the game ID you want to join: ");
-    var gameId = Integer.parseInt(scanner.nextLine());
+    var gameID = Integer.parseInt(scanner.nextLine());
     System.out.print("Which color would you like to be? (white/black): ");
     var color = scanner.nextLine();
     var playerColor = color.equals("white") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
-    var request = new JoinGameRequest(playerColor, gameId);
+    var request = new JoinGameRequest(playerColor, gameID);
     try {
       gameData = serverFacade.joinGame(authData.getAuthToken(), request);
       System.out.printf("Joined game %d.\n", gameData.getGameId());
@@ -212,8 +212,8 @@ public class Repl {
 
   private void joinObserver() {
     System.out.print("Enter the game ID you want to watch: ");
-    var gameId = Integer.parseInt(scanner.nextLine());
-    var request = new JoinGameRequest(null, gameId);
+    var gameID = Integer.parseInt(scanner.nextLine());
+    var request = new JoinGameRequest(null, gameID);
     try {
       gameData = serverFacade.joinGame(authData.getAuthToken(), request);
       System.out.printf("Watching game %d.\n", gameData.getGameId());

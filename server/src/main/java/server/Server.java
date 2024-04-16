@@ -24,7 +24,7 @@ public class Server {
   private GameService gameService;
   private DataService dataService;
 
-  // Track all connected sessions by gameId.
+  // Track all connected sessions by gameID.
   private HashMap<Integer, HashSet<Session>> sessions = new HashMap<Integer, HashSet<Session>>();
 
   public Server() {
@@ -135,22 +135,22 @@ public class Server {
     }
   }
 
-  private void addSession(int gameId, Session session) {
-    if (!sessions.containsKey(gameId)) sessions.put(gameId, new HashSet<Session>());
-    sessions.get(gameId).add(session);
+  private void addSession(int gameID, Session session) {
+    if (!sessions.containsKey(gameID)) sessions.put(gameID, new HashSet<Session>());
+    sessions.get(gameID).add(session);
   }
 
-  private void removeSession(int gameId, Session session) {
-    if (sessions.containsKey(gameId)) sessions.get(gameId).remove(session);
+  private void removeSession(int gameID, Session session) {
+    if (sessions.containsKey(gameID)) sessions.get(gameID).remove(session);
   }
 
   private void send(Session session, ServerMessage message) throws Exception {
     session.getRemote().sendString(gson.toJson(message));
   }
 
-  private void sendToAll(int gameId, ServerMessage message) throws Exception {
+  private void sendToAll(int gameID, ServerMessage message) throws Exception {
     sessions
-        .get(gameId)
+        .get(gameID)
         .forEach(
             (session) -> {
               try {
@@ -162,9 +162,9 @@ public class Server {
             });
   }
 
-  private void sendToOthers(Session skip, int gameId, ServerMessage message) throws Exception {
+  private void sendToOthers(Session skip, int gameID, ServerMessage message) throws Exception {
     sessions
-        .get(gameId)
+        .get(gameID)
         .forEach(
             (session) -> {
               if (session != skip) {

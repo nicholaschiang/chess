@@ -62,16 +62,16 @@ public class ServerFacade extends Endpoint {
     return gameData;
   }
 
-  public void leaveGame(String authToken, int gameId) throws Exception {
-    this.send(new Leave(authToken, gameId));
+  public void leaveGame(String authToken, int gameID) throws Exception {
+    this.send(new Leave(authToken, gameID));
   }
 
-  public void resignGame(String authToken, int gameId) throws Exception {
-    this.send(new Resign(authToken, gameId));
+  public void resignGame(String authToken, int gameID) throws Exception {
+    this.send(new Resign(authToken, gameID));
   }
 
-  public void makeMove(String authToken, int gameId, ChessMove move) throws Exception {
-    this.send(new MakeMove(authToken, gameId, move));
+  public void makeMove(String authToken, int gameID, ChessMove move) throws Exception {
+    this.send(new MakeMove(authToken, gameID, move));
   }
 
   private void connect() throws Exception {
