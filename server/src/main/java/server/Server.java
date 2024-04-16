@@ -10,6 +10,8 @@ import model.*;
 import org.eclipse.jetty.websocket.api.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import service.*;
+import spark.Request;
+import spark.Response;
 import spark.Spark;
 import webSocketMessages.serverMessages.*;
 import webSocketMessages.userCommands.*;
@@ -235,132 +237,132 @@ public class Server {
     Spark.webSocket("/connect", Server.class);
 
     // Clears the database. Removes all users, games, and authTokens.
-    Spark.delete(
-        "/db",
-        (request, response) -> {
-          try {
-            dataService.clearData();
-            return "";
-          } catch (ResponseException e) {
-            System.err.println("Error clearing data: " + e.getMessage());
-            response.status(e.getStatusCode());
-            return gson.toJson(new ErrorResponse(e.getMessage()));
-          } catch (Exception e) {
-            response.status(500);
-            return gson.toJson(new ErrorResponse(e.getMessage()));
-          }
-        });
+    Spark.delete("/db", (request, response) -> clearDatabase(request, response));
 
     // Register a new user.
-    Spark.post(
-        "/user",
-        (request, response) -> {
-          try {
-            UserData user = gson.fromJson(request.body(), UserData.class);
-            return gson.toJson(userService.registerUser(user));
-          } catch (ResponseException e) {
-            System.err.println("Error registering user: " + e.getMessage());
-            response.status(e.getStatusCode());
-            return gson.toJson(new ErrorResponse(e.getMessage()));
-          } catch (Exception e) {
-            response.status(500);
-            return gson.toJson(new ErrorResponse(e.getMessage()));
-          }
-        });
+    Spark.post("/user", (request, response) -> register(request, response));
 
     // Logs in an existing user (returns a new authToken).
-    Spark.post(
-        "/session",
-        (request, response) -> {
-          try {
-            LoginRequest loginRequest = gson.fromJson(request.body(), LoginRequest.class);
-            return gson.toJson(userService.loginUser(loginRequest));
-          } catch (ResponseException e) {
-            System.err.println("Error logging in: " + e.getMessage());
-            response.status(e.getStatusCode());
-            return gson.toJson(new ErrorResponse(e.getMessage()));
-          } catch (Exception e) {
-            response.status(500);
-            return gson.toJson(new ErrorResponse(e.getMessage()));
-          }
-        });
+    Spark.post("/session", (request, response) -> login(request, response));
 
     // Logs out the user represented by the authToken.
-    Spark.delete(
-        "/session",
-        (request, response) -> {
-          try {
-            String authToken = request.headers("Authorization");
-            userService.logoutUser(authToken);
-            return "";
-          } catch (ResponseException e) {
-            System.err.println("Error logging out: " + e.getMessage());
-            response.status(e.getStatusCode());
-            return gson.toJson(new ErrorResponse(e.getMessage()));
-          } catch (Exception e) {
-            response.status(500);
-            return gson.toJson(new ErrorResponse(e.getMessage()));
-          }
-        });
+    Spark.delete("/session", (request, response) -> logout(request, response));
 
     // Gives a list of all games.
-    Spark.get(
-        "/game",
-        (request, response) -> {
-          try {
-            String authToken = request.headers("Authorization");
-            return gson.toJson(gameService.listGames(authToken));
-          } catch (ResponseException e) {
-            System.err.println("Error listing games: " + e.getMessage());
-            response.status(e.getStatusCode());
-            return gson.toJson(new ErrorResponse(e.getMessage()));
-          } catch (Exception e) {
-            response.status(500);
-            return gson.toJson(new ErrorResponse(e.getMessage()));
-          }
-        });
+    Spark.get("/game", (request, response) -> listGames(request, response));
 
     // Creates a new game.
-    Spark.post(
-        "/game",
-        (request, response) -> {
-          try {
-            String authToken = request.headers("Authorization");
-            GameData gameData = gson.fromJson(request.body(), GameData.class);
-            return gson.toJson(gameService.createGame(authToken, gameData));
-          } catch (ResponseException e) {
-            System.err.println("Error creating game: " + e.getMessage());
-            response.status(e.getStatusCode());
-            return gson.toJson(new ErrorResponse(e.getMessage()));
-          } catch (Exception e) {
-            response.status(500);
-            return gson.toJson(new ErrorResponse(e.getMessage()));
-          }
-        });
+    Spark.post("/game", (request, response) -> createGame(request, response));
 
     // Join a game. Verifies that the specified game exists, and, if a color is
     // specified, adds the caller as the requested color to the game. If no
     // color is specified the user is joined as an observer. This request is
     // idempotent.
-    Spark.put(
-        "/game",
-        (request, response) -> {
-          try {
-            String authToken = request.headers("Authorization");
-            JoinGameRequest joinGameRequest = gson.fromJson(request.body(), JoinGameRequest.class);
-            return gson.toJson(gameService.joinGame(authToken, joinGameRequest));
-          } catch (ResponseException e) {
-            System.err.println("Error joining game: " + e.getMessage());
-            response.status(e.getStatusCode());
-            return gson.toJson(new ErrorResponse(e.getMessage()));
-          } catch (Exception e) {
-            response.status(500);
-            return gson.toJson(new ErrorResponse(e.getMessage()));
-          }
-        });
+    Spark.put("/game", (request, response) -> updateGame(request, response));
 
     Spark.awaitInitialization();
     return Spark.port();
+  }
+
+  private String clearDatabase(Request request, Response response) {
+    try {
+      dataService.clearData();
+      return "";
+    } catch (ResponseException e) {
+      System.err.println("Error clearing data: " + e.getMessage());
+      response.status(e.getStatusCode());
+      return gson.toJson(new ErrorResponse(e.getMessage()));
+    } catch (Exception e) {
+      response.status(500);
+      return gson.toJson(new ErrorResponse(e.getMessage()));
+    }
+  }
+
+  private String register(Request request, Response response) {
+    try {
+      UserData user = gson.fromJson(request.body(), UserData.class);
+      return gson.toJson(userService.registerUser(user));
+    } catch (ResponseException e) {
+      System.err.println("Error registering user: " + e.getMessage());
+      response.status(e.getStatusCode());
+      return gson.toJson(new ErrorResponse(e.getMessage()));
+    } catch (Exception e) {
+      response.status(500);
+      return gson.toJson(new ErrorResponse(e.getMessage()));
+    }
+  }
+
+  private String login(Request request, Response response) {
+    try {
+      LoginRequest loginRequest = gson.fromJson(request.body(), LoginRequest.class);
+      return gson.toJson(userService.loginUser(loginRequest));
+    } catch (ResponseException e) {
+      System.err.println("Error logging in: " + e.getMessage());
+      response.status(e.getStatusCode());
+      return gson.toJson(new ErrorResponse(e.getMessage()));
+    } catch (Exception e) {
+      response.status(500);
+      return gson.toJson(new ErrorResponse(e.getMessage()));
+    }
+  }
+
+  private String logout(Request request, Response response) {
+    try {
+      String authToken = request.headers("Authorization");
+      userService.logoutUser(authToken);
+      return "";
+    } catch (ResponseException e) {
+      System.err.println("Error logging out: " + e.getMessage());
+      response.status(e.getStatusCode());
+      return gson.toJson(new ErrorResponse(e.getMessage()));
+    } catch (Exception e) {
+      response.status(500);
+      return gson.toJson(new ErrorResponse(e.getMessage()));
+    }
+  }
+
+  private String listGames(Request request, Response response) {
+    try {
+      String authToken = request.headers("Authorization");
+      return gson.toJson(gameService.listGames(authToken));
+    } catch (ResponseException e) {
+      System.err.println("Error listing games: " + e.getMessage());
+      response.status(e.getStatusCode());
+      return gson.toJson(new ErrorResponse(e.getMessage()));
+    } catch (Exception e) {
+      response.status(500);
+      return gson.toJson(new ErrorResponse(e.getMessage()));
+    }
+  }
+
+  private String createGame(Request request, Response response) {
+    try {
+      String authToken = request.headers("Authorization");
+      GameData gameData = gson.fromJson(request.body(), GameData.class);
+      return gson.toJson(gameService.createGame(authToken, gameData));
+    } catch (ResponseException e) {
+      System.err.println("Error creating game: " + e.getMessage());
+      response.status(e.getStatusCode());
+      return gson.toJson(new ErrorResponse(e.getMessage()));
+    } catch (Exception e) {
+      response.status(500);
+      return gson.toJson(new ErrorResponse(e.getMessage()));
+    }
+  }
+
+  private String updateGame(Request request, Response response) {
+    try {
+      String authToken = request.headers("Authorization");
+      JoinGameRequest joinGameRequest = gson.fromJson(request.body(), JoinGameRequest.class);
+      return gson.toJson(gameService.joinGame(authToken, joinGameRequest));
+    } catch (ResponseException e) {
+      System.err.println("Error joining game: " + e.getMessage());
+      response.status(e.getStatusCode());
+      return gson.toJson(new ErrorResponse(e.getMessage()));
+    } catch (Exception e) {
+      response.status(500);
+      return gson.toJson(new ErrorResponse(e.getMessage()));
+    }
   }
 
   public void stop() {
