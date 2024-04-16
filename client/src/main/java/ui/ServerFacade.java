@@ -91,6 +91,7 @@ public class ServerFacade extends Endpoint {
         });
   }
 
+  @Override
   public void onOpen(Session session, EndpointConfig config) {
     System.out.println("Connected to websocket server.");
   }
