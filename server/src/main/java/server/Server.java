@@ -143,6 +143,21 @@ public class Server {
     gameDataAccess.updateGame(gameData.getGameId(), gameData);
     sendToAll(move.getGameId(), new LoadGame(gameData));
     sendToOthers(session, move.getGameId(), new Notification(notification));
+
+    // If the game is over, send a notification to all players.
+    for (var teamColor : TeamColor.values()) {
+      if (game.isInCheckmate(teamColor)) {
+        sendToAll(
+            move.getGameId(),
+            new Notification("The game is in checkmate! " + teamColor + " has been defeated."));
+      } else if (game.isInCheck(teamColor)) {
+        sendToAll(
+            move.getGameId(),
+            new Notification("The game is in check! " + teamColor + " must save themselves!"));
+      } else if (game.isInStalemate(teamColor)) {
+        sendToAll(move.getGameId(), new Notification("The game is a stalemate!"));
+      }
+    }
   }
 
   private void leave(Session session, String message, AuthData authData) throws Exception {
@@ -182,7 +197,6 @@ public class Server {
     gameDataAccess.updateGame(gameData.getGameId(), gameData);
     var notification = authData.getUsername() + " has forfeited the game.";
     sendToAll(resign.getGameId(), new Notification(notification));
-    removeSession(resign.getGameId(), session);
   }
 
   private void addSession(int gameID, Session session) {

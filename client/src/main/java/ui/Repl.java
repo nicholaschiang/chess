@@ -273,13 +273,18 @@ public class Repl {
   }
 
   private void resignGame() {
-    System.out.printf("Resigning game %d...\n", gameData.getGameId());
-    try {
-      serverFacade.resignGame(authData.getAuthToken(), gameData.getGameId());
-      gameData = null;
-    } catch (Exception e) {
-      System.out.println("Resign game failed. Please try again.");
-      System.out.println("Detail: " + e.getMessage());
+    System.out.print("Are you sure you want to resign? (yes/no): ");
+    var response = scanner.nextLine();
+    if (response.equals("yes")) {
+      System.out.printf("Resigning game %d...\n", gameData.getGameId());
+      try {
+        serverFacade.resignGame(authData.getAuthToken(), gameData.getGameId());
+      } catch (Exception e) {
+        System.out.println("Resign game failed. Please try again.");
+        System.out.println("Detail: " + e.getMessage());
+      }
+    } else {
+      System.out.println("Canceled resign. Believe in yourself!");
     }
   }
 
