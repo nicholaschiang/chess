@@ -5,6 +5,7 @@ import dataAccess.*;
 import exception.ResponseException;
 import model.*;
 import server.*;
+import chess.ChessGame;
 
 public class GameService {
   private AuthDataAccess authDataAccess;
@@ -25,6 +26,9 @@ public class GameService {
   public GameData createGame(String authToken, GameData gameData) throws ResponseException {
     if (authDataAccess.getAuth(authToken) == null) {
       throw new ResponseException(401, "unauthorized");
+    }
+    if (gameData.getGame() == null) {
+      gameData.setGame(new ChessGame());
     }
     return gameDataAccess.createGame(gameData);
   }

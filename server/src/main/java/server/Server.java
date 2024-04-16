@@ -102,6 +102,19 @@ public class Server {
                     move.getMove().getStartPosition(),
                     move.getMove().getEndPosition());
 
+            // The `makeMove()` method only checks that the piece being moved is
+            // the color of the current player. It does not check that the
+            // request is being made by the current player.
+            if (game.getTeamTurn() == TeamColor.WHITE) {
+              if (!authData.getUsername().equals(gameData.getWhiteUsername())) {
+                throw new Exception("It is not your turn.");
+              }
+            } else {
+              if (!authData.getUsername().equals(gameData.getBlackUsername())) {
+                throw new Exception("It is not your turn.");
+              }
+            }
+
             game.makeMove(move.getMove());
             gameDataAccess.updateGame(gameData.getGameId(), gameData);
             sendToAll(move.getGameId(), new LoadGame(gameData));
@@ -127,8 +140,23 @@ public class Server {
           {
             var resign = gson.fromJson(message, Resign.class);
             var gameData = gameDataAccess.getGame(resign.getGameId());
-            var isWhite = authData.getUsername().equals(gameData.getWhiteUsername());
-            gameData.getGame().setResigned(isWhite ? TeamColor.WHITE : TeamColor.BLACK);
+
+            // Only allow players to resign. Observers can't resign.
+            TeamColor resigned;
+            if (authData.getUsername().equals(gameData.getWhiteUsername())) {
+              resigned = TeamColor.WHITE;
+            } else if (authData.getUsername().equals(gameData.getBlackUsername())) {
+              resigned = TeamColor.BLACK;
+            } else {
+              throw new Exception("You are not a player in this game.");
+            }
+
+            // Only allow players to resign if the game is in progress.
+            if (gameData.getGame().getResigned() != null) {
+              throw new Exception("The game has already ended.");
+            }
+
+            gameData.getGame().setResigned(resigned);
             gameDataAccess.updateGame(gameData.getGameId(), gameData);
             var notification = authData.getUsername() + " has forfeited the game.";
             sendToAll(resign.getGameId(), new Notification(notification));
