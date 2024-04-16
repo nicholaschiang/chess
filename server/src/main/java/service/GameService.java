@@ -40,7 +40,7 @@ public class GameService {
       throw new ResponseException(400, "bad request");
     }
     if (joinGameRequest.getPlayerColor() == TeamColor.WHITE) {
-      if (game.getWhiteUsername().equals(auth.getUsername())) {
+      if (auth.getUsername().equals(game.getWhiteUsername())) {
         // Already joined, nothing to do. The request is idempotent.
         return game;
       } else if (game.getWhiteUsername() != null) {
@@ -48,7 +48,7 @@ public class GameService {
       }
       game.setWhiteUsername(auth.getUsername());
     } else if (joinGameRequest.getPlayerColor() == TeamColor.BLACK) {
-      if (game.getBlackUsername().equals(auth.getUsername())) {
+      if (auth.getUsername().equals(game.getBlackUsername())) {
         // Already joined, nothing to do. The request is idempotent.
         return game;
       } else if (game.getBlackUsername() != null) {
