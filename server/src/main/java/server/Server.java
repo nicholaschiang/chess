@@ -49,120 +49,20 @@ public class Server {
       var authData = authDataAccess.getAuth(command.getAuthString());
       switch (command.getCommandType()) {
         case JOIN_OBSERVER:
-          {
-            var join = gson.fromJson(message, JoinObserver.class);
-            var gameData = gameDataAccess.getGame(join.getGameId());
-            var notification = authData.getUsername() + " is now observing your game.";
-            addSession(gameData.getGameId(), session);
-            send(session, new LoadGame(gameData));
-            sendToOthers(session, gameData.getGameId(), new Notification(notification));
-            break;
-          }
+          joinObserver(session, message, authData);
+          break;
         case JOIN_PLAYER:
-          {
-            var join = gson.fromJson(message, JoinPlayer.class);
-            var gameData = gameDataAccess.getGame(join.getGameId());
-
-            // Check that the game aligns with the join request.
-            if (join.getPlayerColor() == TeamColor.WHITE) {
-              if (!authData.getUsername().equals(gameData.getWhiteUsername())) {
-                throw new Exception("You are not the white player in this game.");
-              }
-            } else if (join.getPlayerColor() == TeamColor.BLACK) {
-              if (!authData.getUsername().equals(gameData.getBlackUsername())) {
-                throw new Exception("You are not the black player in this game.");
-              }
-            }
-
-            var notification = "";
-            if (join.getPlayerColor() == TeamColor.WHITE) {
-              notification += gameData.getWhiteUsername();
-              notification += " has joined the game playing white!";
-            } else {
-              notification += gameData.getBlackUsername();
-              notification += " has joined the game playing black!";
-            }
-
-            addSession(gameData.getGameId(), session);
-            send(session, new LoadGame(gameData));
-            sendToOthers(session, gameData.getGameId(), new Notification(notification));
-            break;
-          }
+          joinPlayer(session, message, authData);
+          break;
         case MAKE_MOVE:
-          {
-            var move = gson.fromJson(message, MakeMove.class);
-            var gameData = gameDataAccess.getGame(move.getGameId());
-            var game = gameData.getGame();
-
-            var notification =
-                String.format(
-                    "%s moved their %s from %s to %s.",
-                    authData.getUsername(),
-                    game.getBoard().getPiece(move.getMove().getStartPosition()),
-                    move.getMove().getStartPosition(),
-                    move.getMove().getEndPosition());
-
-            // The `makeMove()` method only checks that the piece being moved is
-            // the color of the current player. It does not check that the
-            // request is being made by the current player.
-            if (game.getTeamTurn() == TeamColor.WHITE) {
-              if (!authData.getUsername().equals(gameData.getWhiteUsername())) {
-                throw new Exception("It is not your turn.");
-              }
-            } else {
-              if (!authData.getUsername().equals(gameData.getBlackUsername())) {
-                throw new Exception("It is not your turn.");
-              }
-            }
-
-            game.makeMove(move.getMove());
-            gameDataAccess.updateGame(gameData.getGameId(), gameData);
-            sendToAll(move.getGameId(), new LoadGame(gameData));
-            sendToOthers(session, move.getGameId(), new Notification(notification));
-            break;
-          }
+          makeMove(session, message, authData);
+          break;
         case LEAVE:
-          {
-            var leave = gson.fromJson(message, Leave.class);
-            var gameData = gameDataAccess.getGame(leave.getGameId());
-            if (gameData.getBlackUsername() == authData.getUsername()) {
-              gameData.setBlackUsername(null);
-            } else if (gameData.getWhiteUsername() == authData.getUsername()) {
-              gameData.setWhiteUsername(null);
-            }
-            var notification = authData.getUsername() + " has left the game.";
-            gameDataAccess.updateGame(gameData.getGameId(), gameData);
-            removeSession(leave.getGameId(), session);
-            sendToOthers(session, leave.getGameId(), new Notification(notification));
-            break;
-          }
+          leave(session, message, authData);
+          break;
         case RESIGN:
-          {
-            var resign = gson.fromJson(message, Resign.class);
-            var gameData = gameDataAccess.getGame(resign.getGameId());
-
-            // Only allow players to resign. Observers can't resign.
-            TeamColor resigned;
-            if (authData.getUsername().equals(gameData.getWhiteUsername())) {
-              resigned = TeamColor.WHITE;
-            } else if (authData.getUsername().equals(gameData.getBlackUsername())) {
-              resigned = TeamColor.BLACK;
-            } else {
-              throw new Exception("You are not a player in this game.");
-            }
-
-            // Only allow players to resign if the game is in progress.
-            if (gameData.getGame().getResigned() != null) {
-              throw new Exception("The game has already ended.");
-            }
-
-            gameData.getGame().setResigned(resigned);
-            gameDataAccess.updateGame(gameData.getGameId(), gameData);
-            var notification = authData.getUsername() + " has forfeited the game.";
-            sendToAll(resign.getGameId(), new Notification(notification));
-            removeSession(resign.getGameId(), session);
-            break;
-          }
+          resign(session, message, authData);
+          break;
       }
     } catch (Exception e) {
       var errorMessage =
@@ -171,6 +71,116 @@ public class Server {
       System.err.println(e.getStackTrace());
       send(session, new ServerError(errorMessage));
     }
+  }
+
+  private void joinObserver(Session session, String message, AuthData authData) throws Exception {
+    var join = gson.fromJson(message, JoinObserver.class);
+    var gameData = gameDataAccess.getGame(join.getGameId());
+    var notification = authData.getUsername() + " is now observing your game.";
+    addSession(gameData.getGameId(), session);
+    send(session, new LoadGame(gameData));
+    sendToOthers(session, gameData.getGameId(), new Notification(notification));
+  }
+
+  private void joinPlayer(Session session, String message, AuthData authData) throws Exception {
+    var join = gson.fromJson(message, JoinPlayer.class);
+    var gameData = gameDataAccess.getGame(join.getGameId());
+
+    // Check that the game aligns with the join request.
+    if (join.getPlayerColor() == TeamColor.WHITE) {
+      if (!authData.getUsername().equals(gameData.getWhiteUsername())) {
+        throw new Exception("You are not the white player in this game.");
+      }
+    } else if (join.getPlayerColor() == TeamColor.BLACK) {
+      if (!authData.getUsername().equals(gameData.getBlackUsername())) {
+        throw new Exception("You are not the black player in this game.");
+      }
+    }
+
+    var notification = "";
+    if (join.getPlayerColor() == TeamColor.WHITE) {
+      notification += gameData.getWhiteUsername();
+      notification += " has joined the game playing white!";
+    } else {
+      notification += gameData.getBlackUsername();
+      notification += " has joined the game playing black!";
+    }
+
+    addSession(gameData.getGameId(), session);
+    send(session, new LoadGame(gameData));
+    sendToOthers(session, gameData.getGameId(), new Notification(notification));
+  }
+
+  private void makeMove(Session session, String message, AuthData authData) throws Exception {
+    var move = gson.fromJson(message, MakeMove.class);
+    var gameData = gameDataAccess.getGame(move.getGameId());
+    var game = gameData.getGame();
+
+    var notification =
+        String.format(
+            "%s moved their %s from %s to %s.",
+            authData.getUsername(),
+            game.getBoard().getPiece(move.getMove().getStartPosition()),
+            move.getMove().getStartPosition(),
+            move.getMove().getEndPosition());
+
+    // The `makeMove()` method only checks that the piece being moved is
+    // the color of the current player. It does not check that the
+    // request is being made by the current player.
+    if (game.getTeamTurn() == TeamColor.WHITE) {
+      if (!authData.getUsername().equals(gameData.getWhiteUsername())) {
+        throw new Exception("It is not your turn.");
+      }
+    } else {
+      if (!authData.getUsername().equals(gameData.getBlackUsername())) {
+        throw new Exception("It is not your turn.");
+      }
+    }
+
+    game.makeMove(move.getMove());
+    gameDataAccess.updateGame(gameData.getGameId(), gameData);
+    sendToAll(move.getGameId(), new LoadGame(gameData));
+    sendToOthers(session, move.getGameId(), new Notification(notification));
+  }
+
+  private void leave(Session session, String message, AuthData authData) throws Exception {
+    var leave = gson.fromJson(message, Leave.class);
+    var gameData = gameDataAccess.getGame(leave.getGameId());
+    if (gameData.getBlackUsername() == authData.getUsername()) {
+      gameData.setBlackUsername(null);
+    } else if (gameData.getWhiteUsername() == authData.getUsername()) {
+      gameData.setWhiteUsername(null);
+    }
+    var notification = authData.getUsername() + " has left the game.";
+    gameDataAccess.updateGame(gameData.getGameId(), gameData);
+    removeSession(leave.getGameId(), session);
+    sendToOthers(session, leave.getGameId(), new Notification(notification));
+  }
+
+  private void resign(Session session, String message, AuthData authData) throws Exception {
+    var resign = gson.fromJson(message, Resign.class);
+    var gameData = gameDataAccess.getGame(resign.getGameId());
+
+    // Only allow players to resign. Observers can't resign.
+    TeamColor resigned;
+    if (authData.getUsername().equals(gameData.getWhiteUsername())) {
+      resigned = TeamColor.WHITE;
+    } else if (authData.getUsername().equals(gameData.getBlackUsername())) {
+      resigned = TeamColor.BLACK;
+    } else {
+      throw new Exception("You are not a player in this game.");
+    }
+
+    // Only allow players to resign if the game is in progress.
+    if (gameData.getGame().getResigned() != null) {
+      throw new Exception("The game has already ended.");
+    }
+
+    gameData.getGame().setResigned(resigned);
+    gameDataAccess.updateGame(gameData.getGameId(), gameData);
+    var notification = authData.getUsername() + " has forfeited the game.";
+    sendToAll(resign.getGameId(), new Notification(notification));
+    removeSession(resign.getGameId(), session);
   }
 
   private void addSession(int gameID, Session session) {
@@ -187,25 +197,19 @@ public class Server {
   }
 
   private void sendToAll(int gameID, ServerMessage message) throws Exception {
-    sessions
-        .get(gameID)
-        .forEach(
-            (session) -> {
-              try {
-                send(session, message);
-              } catch (Exception e) {
-                System.err.println("Failed to send message to session: " + e.getMessage());
-                System.err.println(e.getStackTrace());
-              }
-            });
+    sendToSessions(gameID, message, null);
   }
 
   private void sendToOthers(Session skip, int gameID, ServerMessage message) throws Exception {
+    sendToSessions(gameID, message, skip);
+  }
+
+  private void sendToSessions(int gameID, ServerMessage message, Session skip) throws Exception {
     sessions
         .get(gameID)
         .forEach(
             (session) -> {
-              if (session.equals(skip)) {
+              if (skip != null && session.equals(skip)) {
                 System.out.println("Skipping current session...");
               } else {
                 try {

@@ -64,24 +64,6 @@ public class ChessBoard {
     return builder.toString();
   }
 
-  // toString method that puts the white pieces on top.
-  public String toWhiteString() {
-    StringBuilder builder = new StringBuilder();
-    for (var i = 7; i >= 0; i--) {
-      ChessPiece[] row = board[i];
-      for (ChessPiece piece : row) {
-        if (piece == null) {
-          builder.append(" ");
-        } else {
-          builder.append(piece);
-        }
-        builder.append("|");
-      }
-      builder.append("\n");
-    }
-    return builder.toString();
-  }
-
   public ChessBoard() {
     board = new ChessPiece[8][8];
   }
