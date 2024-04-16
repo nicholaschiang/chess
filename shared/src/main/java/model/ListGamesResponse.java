@@ -1,7 +1,6 @@
-package server;
+package model;
 
 import java.util.Collection;
-import model.GameData;
 
 public class ListGamesResponse {
   private Collection<GameData> games;

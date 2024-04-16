@@ -1,4 +1,4 @@
-package server;
+package model;
 
 public class LoginRequest {
   private String username;

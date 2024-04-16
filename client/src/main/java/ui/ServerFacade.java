@@ -7,7 +7,6 @@ import java.net.*;
 import java.util.function.Consumer;
 import javax.websocket.*;
 import model.*;
-import server.*;
 import webSocketMessages.userCommands.*;
 
 public class ServerFacade extends Endpoint {

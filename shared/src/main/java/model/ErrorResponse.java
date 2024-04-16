@@ -1,6 +1,6 @@
-package server;
+package model;
 
-class ErrorResponse {
+public class ErrorResponse {
   private String message;
 
   public ErrorResponse(String error) {
