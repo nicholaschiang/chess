@@ -16,6 +16,11 @@ public class ServerFacade extends Endpoint {
   private Session session;
   private final Consumer<String> onMessage;
 
+  public ServerFacade(String serverUrl) {
+    this.serverUrl = serverUrl;
+    this.onMessage = null;
+  }
+
   public ServerFacade(String serverUrl, Consumer<String> onMessage) {
     this.serverUrl = serverUrl;
     this.onMessage = onMessage;
@@ -82,7 +87,7 @@ public class ServerFacade extends Endpoint {
     session.addMessageHandler(
         new MessageHandler.Whole<String>() {
           public void onMessage(String message) {
-            onMessage.accept(message);
+            if (onMessage != null) onMessage.accept(message);
           }
         });
   }

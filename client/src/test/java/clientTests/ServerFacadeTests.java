@@ -137,8 +137,10 @@ public class ServerFacadeTests {
     var game = serverFacade.createGame(authData.getAuthToken(), gameData);
     assertNotNull(game);
     var request = new JoinGameRequest(ChessGame.TeamColor.WHITE, game.getGameId());
-    var joinedGame = serverFacade.joinGame(authData.getAuthToken(), request);
-    assertNotNull(joinedGame);
+    assertDoesNotThrow(() -> {
+      var joinedGame = serverFacade.joinGame(authData.getAuthToken(), request);
+      assertNotNull(joinedGame);
+    });
   }
 
   @Test
